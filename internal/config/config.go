@@ -3,12 +3,14 @@ package config
 import (
 	"errors"
 	"fmt"
+	"github.com/joho/godotenv"
 	"os"
 )
 
 var (
 	dbUserEmptyError = errors.New("DB User is Empty")
 	dbNameEmptyError = errors.New("DB Name is Empty")
+	envLoadError     = errors.New(".env load Error")
 )
 
 type Config struct {
@@ -30,6 +32,10 @@ type DatabaseConfig struct {
 }
 
 func LoadConfig() (*Config, error) {
+	if err := godotenv.Load(); err != nil {
+		return nil, envLoadError
+	}
+
 	cfg := &Config{
 		App: AppConfig{
 			Env: getEnv("APP_ENV", "local"),
@@ -64,7 +70,7 @@ func LoadConfig() (*Config, error) {
 }
 
 func getEnv(key, fallback string) string {
-	if v, ok := os.LookupEnv(key); ok && v != "" {
+	if v := os.Getenv(key); v != "" {
 		return v
 	}
 	return fallback

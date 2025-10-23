@@ -2,9 +2,9 @@ package usecase
 
 import (
 	"context"
-	"github.com/niklvrr/FinancialAnalyticsService/internal/domain/model"
-	"github.com/niklvrr/FinancialAnalyticsService/internal/domain/request"
-	"github.com/niklvrr/FinancialAnalyticsService/internal/domain/response"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/domain/model"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/domain/request"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/domain/response"
 )
 
 type BankAccountRepo interface {
@@ -38,7 +38,9 @@ func (s *BankAccountService) GetBankAccount(ctx context.Context, req *request.Ge
 	}
 
 	resp := &response.BankAccountResponse{
-		Id: account.
+		Id:      account.ID(),
+		Name:    account.Name(),
+		Balance: account.Balance(),
 	}
 
 	return resp, nil

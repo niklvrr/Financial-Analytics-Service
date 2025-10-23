@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/niklvrr/FinancialAnalyticsService/internal/app"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/app"
 	"log"
 	"os"
 	"os/signal"

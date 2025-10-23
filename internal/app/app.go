@@ -1,9 +1,9 @@
 package app
 
 import (
-	"github.com/niklvrr/FinancialAnalyticsService/internal/config"
-	"github.com/niklvrr/FinancialAnalyticsService/internal/infrastructure"
-	"github.com/niklvrr/FinancialAnalyticsService/pkg/logger"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/config"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/infrastructure"
+	"github.com/niklvrr/Financial-Analytics-Service/pkg/logger"
 	"log"
 	"log/slog"
 )
@@ -22,20 +22,20 @@ func NewApp() *App {
 	}
 
 	// инициализация логгера
-	logger := logger.NewLog(cfg.App.Env)
-	logger.Debug("Логгер инициализирован")
+	log := logger.NewLog(cfg.App.Env)
+	log.Debug("Логгер инициализирован")
 
 	// инициализация бд
 	db, err := infrastructure.NewDB(cfg.Database.URL)
 	if err != nil {
-		logger.Error(err.Error())
+		log.Error(err.Error())
 	}
-	logger.Debug("База данных инициализирована")
+	log.Debug("База данных инициализирована")
 
 	return &App{
 		db:  db,
 		cfg: cfg,
-		log: logger,
+		log: log,
 	}
 }
 
