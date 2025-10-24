@@ -18,6 +18,10 @@ func (b *BankAccount) ID() int64 {
 	return b.id
 }
 
+func (b *BankAccount) SetID(id int64) {
+	b.id = id
+}
+
 func (b *BankAccount) Name() string {
 	return b.name
 }

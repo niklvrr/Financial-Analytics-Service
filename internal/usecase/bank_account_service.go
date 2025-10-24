@@ -12,6 +12,7 @@ type BankAccountRepo interface {
 	GetBankAccount(ctx context.Context, accountId int64) (*model.BankAccount, error)
 	UpdateBankAccount(ctx context.Context, account *model.BankAccount) error
 	DeleteBankAccount(ctx context.Context, accountId int64) error
+	GetAllBankAccounts(ctx context.Context) ([]*model.BankAccount, error)
 }
 
 type BankAccountService struct {
