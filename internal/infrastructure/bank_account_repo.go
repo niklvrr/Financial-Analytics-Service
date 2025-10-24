@@ -14,7 +14,7 @@ INSERT INTO bank_accounts (name, balance)
 VALUES ($1, $2)
 RETURNING id`
 	getBankAccountQuery = `
-SELECT id, name, balance
+SELECT name, balance
 FROM bank_accounts
 WHERE id = $1`
 	updateBankAccountQuery = `
@@ -75,6 +75,7 @@ func (r *BankAccountRepo) GetBankAccount(ctx context.Context, accountId int64) (
 		return nil, fmt.Errorf("%w: %w", getBankAccountError, err)
 	}
 
+	account.SetID(accountId)
 	account.SetName(name)
 	account.SetBalance(balance)
 	return account, nil
