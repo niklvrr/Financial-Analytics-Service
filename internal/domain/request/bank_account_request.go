@@ -24,8 +24,9 @@ func NewCreateBankAccountRequest(name string) *CreateBankAccountRequest {
 
 // Модель запроса для изменения счета
 type UpdateBankAccountRequest struct {
-	Id   int64
-	Name string
+	Id      int64
+	Name    string
+	Balance float64
 }
 
 func NewUpdateBankAccountRequest(id int64, name string) *UpdateBankAccountRequest {

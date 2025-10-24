@@ -46,3 +46,38 @@ func (s *BankAccountService) GetBankAccount(ctx context.Context, req *request.Ge
 
 	return resp, nil
 }
+
+func (s *BankAccountService) UpdateBankAccount(ctx context.Context, req *request.UpdateBankAccountRequest) error {
+	account := model.NewBankAccount(req.Id, req.Name, req.Balance)
+	if err := s.repo.UpdateBankAccount(ctx, account); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *BankAccountService) DeleteBankAccount(ctx context.Context, req *request.DeleteBankAccountRequest) error {
+	if err := s.repo.DeleteBankAccount(ctx, req.Id); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *BankAccountService) GetAllBankAccounts(ctx context.Context) ([]*response.BankAccountResponse, error) {
+	accounts, err := s.repo.GetAllBankAccounts(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := make([]*response.BankAccountResponse, len(accounts))
+	for i, account := range accounts {
+		resp[i] = &response.BankAccountResponse{
+			Id:      account.ID(),
+			Name:    account.Name(),
+			Balance: account.Balance(),
+		}
+	}
+
+	return resp, nil
+}
