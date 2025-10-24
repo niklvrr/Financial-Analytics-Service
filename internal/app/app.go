@@ -1,6 +1,10 @@
 package app
 
 import (
+	"errors"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/config"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/infrastructure"
 	"github.com/niklvrr/Financial-Analytics-Service/pkg/logger"
@@ -31,6 +35,8 @@ func NewApp() *App {
 		log.Error(err.Error())
 	}
 	log.Debug("База данных инициализирована")
+
+	mustRunMigrations(cfg.Database.URL, log)
 
 	return &App{
 		db:  db,
@@ -67,4 +73,27 @@ func setupApp() error {
 
 	// инициализация меню
 	return nil
+}
+
+func mustRunMigrations(dbUrl string, logger *slog.Logger) {
+	if dbUrl == "" {
+		logger.Error("dbUrl is empty")
+		return
+	}
+
+	mg, err := migrate.New(
+		"file://migrations",
+		dbUrl,
+	)
+	if err != nil {
+		logger.Error("migration init err", err)
+		return
+	}
+
+	if err := mg.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		logger.Error("migration run err", err)
+		return
+	}
+
+	logger.Debug("migration run ok")
 }

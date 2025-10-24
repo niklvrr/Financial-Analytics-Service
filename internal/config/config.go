@@ -46,7 +46,7 @@ func LoadConfig() (*Config, error) {
 			User:     getEnv("DB_USER", "postgres"),
 			Password: getEnv("DB_PASSWORD", ""),
 			Name:     getEnv("DB_NAME", ""),
-			URL:      getEnv("DB_URL", ""),
+			URL:      "",
 		},
 	}
 
