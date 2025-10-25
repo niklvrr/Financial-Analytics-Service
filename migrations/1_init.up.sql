@@ -18,7 +18,7 @@ CREATE TABLE operations (
                             bank_account_id BIGINT NOT NULL
                                 REFERENCES bank_accounts(id) ON UPDATE CASCADE ON DELETE RESTRICT,
                             amount NUMERIC(18,2) NOT NULL,
-                            date TIMESTAMPTZ NOT NULL,
+                            date TIMESTAMP NOT NULL,
                             description TEXT,
                             category_id BIGINT NOT NULL
                                 REFERENCES categories(id) ON UPDATE CASCADE ON DELETE RESTRICT
