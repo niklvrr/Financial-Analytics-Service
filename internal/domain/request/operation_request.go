@@ -1,5 +1,7 @@
 package request
 
+import "time"
+
 // Модель запроса для получения операции
 type GetOperationRequest struct {
 	Id int64
@@ -42,6 +44,7 @@ type UpdateOperationRequest struct {
 	Kind          string
 	BankAccountId int64
 	Amount        float64
+	Date          time.Time
 	Description   string
 	CategoryId    int64
 }
