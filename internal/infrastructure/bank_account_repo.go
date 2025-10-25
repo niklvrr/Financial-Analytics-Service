@@ -46,18 +46,17 @@ func NewBankAccountRepo(db *pgxpool.Pool) *BankAccountRepo {
 }
 
 func (r *BankAccountRepo) CreateBankAccount(ctx context.Context, account *model.BankAccount) error {
-	var id int64
 	err := r.db.QueryRow(
 		ctx,
 		createBankAccountQuery,
 		account.Name,
 		account.Balance,
-	).Scan(&id)
+	)
 
 	if err != nil {
 		return fmt.Errorf("%w: %w", createBankAccountError, err)
 	}
-	account.SetID(id)
+
 	return nil
 }
 

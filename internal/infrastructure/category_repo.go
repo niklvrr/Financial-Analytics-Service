@@ -11,8 +11,7 @@ import (
 const (
 	createCategoryQuery = `
 INSERT INTO categories (kind, name)
-VALUES ($1, $2)
-RETURNING id`
+VALUES ($1, $2)`
 	getCategoryQuery = `
 SELECT kind, name
 FROM categories
@@ -48,19 +47,17 @@ func NewCategoryRepo(db *pgxpool.Pool) *CategoryRepo {
 }
 
 func (r *CategoryRepo) CreateCategory(ctx context.Context, c *model.Category) error {
-	var id int64
 	err := r.db.QueryRow(
 		ctx,
 		createCategoryQuery,
 		c.Kind,
 		c.Name,
-	).Scan(&id)
+	)
 
 	if err != nil {
 		return fmt.Errorf("%w: %w", createCategoryError, err)
 	}
 
-	c.SetID(id)
 	return nil
 }
 
