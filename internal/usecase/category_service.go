@@ -33,14 +33,14 @@ func (s *CategoryService) CreateCategory(ctx context.Context, req *request.Creat
 	return nil
 }
 
-func (s *CategoryService) GetCategory(ctx context.Context, id int64) (*response.CategoryResponse, error) {
-	category, err := s.repo.GetCategory(ctx, id)
+func (s *CategoryService) GetCategory(ctx context.Context, req *request.GetCategoryRequest) (*response.CategoryResponse, error) {
+	category, err := s.repo.GetCategory(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
 
 	resp := &response.CategoryResponse{
-		Id:   id,
+		Id:   req.Id,
 		Kind: category.Kind(),
 		Name: category.Name(),
 	}
