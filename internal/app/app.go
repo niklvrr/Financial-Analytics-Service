@@ -6,22 +6,18 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/config"
-	"github.com/niklvrr/Financial-Analytics-Service/internal/infrastructure"
-	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/handlers"
-	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/menu"
-	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase"
+	"github.com/niklvrr/Financial-Analytics-Service/pkg/di"
 	"github.com/niklvrr/Financial-Analytics-Service/pkg/logger"
 	"log"
 	"log/slog"
 )
 
 type App struct {
-	ctx context.Context
-	db  *infrastructure.Database
-	cfg *config.Config
-	log *slog.Logger
+	ctx       context.Context
+	cfg       *config.Config
+	log       *slog.Logger
+	container *di.Container
 }
 
 func NewApp(c context.Context) *App {
@@ -35,67 +31,38 @@ func NewApp(c context.Context) *App {
 	log := logger.NewLog(cfg.App.Env)
 	log.Debug("Логгер инициализирован")
 
-	// инициализация бд
-	db, err := infrastructure.NewDB(c, cfg.Database.URL)
+	// DI контейнер (инициализирует БД, репозитории, сервисы, хэндлеры и меню)
+	container, err := di.New(c)
 	if err != nil {
 		log.Error(err.Error())
 	}
-	log.Debug("База данных инициализирована")
+	log.Debug("Слои приложения инициализированы")
 
 	mustRunMigrations(cfg.Database.URL, log)
 
 	return &App{
-		ctx: c,
-		db:  db,
-		cfg: cfg,
-		log: log,
+		ctx:       c,
+		cfg:       cfg,
+		log:       log,
+		container: container,
 	}
 }
 
 func (app *App) Run() error {
-	err := setupApp(app.db.Db, app.ctx)
-	if err != nil {
+	if err := app.container.Run(); err != nil {
 		app.log.Error(err.Error())
+		return err
 	}
-
 	return nil
 }
 
 func (app *App) Stop() {
-	if app.db != nil {
-		app.db.Close()
+	if app.container != nil {
+		app.container.Close()
 	}
 
 	app.log.Debug("Приложение завершено корректно")
 	return
-}
-
-func setupApp(db *pgxpool.Pool, ctx context.Context) error {
-	// инициализация репозитория
-	bankAccountRepo := infrastructure.NewBankAccountRepo(db)
-	categoryRepo := infrastructure.NewCategoryRepo(db)
-	operationRepo := infrastructure.NewOperationRepo(db)
-
-	// инициализация сервисов
-	bankAccountService := usecase.NewBankAccountService(bankAccountRepo)
-	categoryService := usecase.NewCategoryService(categoryRepo)
-	operationService := usecase.NewOperationService(operationRepo)
-
-	// инициализация хэндлеров
-	bankAccountHandler := handlers.NewBankAccountHandler(bankAccountService)
-	categoryHandler := handlers.NewCategoryHandler(categoryService)
-	operationHandler := handlers.NewOperationHandler(operationService)
-
-	// инициализация меню
-	menuTitle := "=== Главное меню ==="
-	m := menu.NewMenu(menuTitle)
-	m.Build(bankAccountHandler, categoryHandler, operationHandler)
-	err := m.Run(ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func mustRunMigrations(dbUrl string, logger *slog.Logger) {
