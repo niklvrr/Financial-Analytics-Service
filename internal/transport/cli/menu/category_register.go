@@ -3,11 +3,12 @@ package menu
 import "github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/handlers"
 
 func registerCategory(menu *Menu, categoryHandler *handlers.CategoryHandler) {
-	subMenu := NewMenu("Выберете команду")
-	registerSubMenu(subMenu, categoryHandler)
+	subMenuTitle := "=== Меню управляения категориями ==="
+	subMenu := NewMenu(subMenuTitle)
+	registerCategorySubMenu(subMenu, categoryHandler)
 
 	categoryItem := &MenuItem{
-		Key:     0,
+		Key:     1,
 		Title:   "Управлять категориями",
 		Handler: nil,
 		SubMenu: subMenu,
@@ -16,7 +17,7 @@ func registerCategory(menu *Menu, categoryHandler *handlers.CategoryHandler) {
 	menu.AddItem(categoryItem)
 }
 
-func registerSubMenu(subMenu *Menu, categoryHandler *handlers.CategoryHandler) {
+func registerCategorySubMenu(subMenu *Menu, categoryHandler *handlers.CategoryHandler) {
 	createMenuItem := &MenuItem{
 		Key:     0,
 		Title:   "Создать категорию",

@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/handlers"
 	"os"
 	"strconv"
 	"strings"
@@ -35,6 +36,15 @@ func NewMenu(title string) *Menu {
 		Items: []*MenuItem{},
 		In:    bufio.NewReader(os.Stdin),
 	}
+}
+
+func (m *Menu) Build(
+	bankAccountHandler *handlers.BankAccountHandler,
+	categoryHandler *handlers.CategoryHandler,
+	operationHandler *handlers.OperationHandler) {
+	registerBankAccount(m, bankAccountHandler)
+	registerCategory(m, categoryHandler)
+	registerOperation(m, operationHandler)
 }
 
 func (m *Menu) AddItem(item *MenuItem) {
