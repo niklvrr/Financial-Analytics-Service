@@ -49,12 +49,12 @@ func (r *BankAccountRepo) CreateBankAccount(ctx context.Context, account *model.
 	err := r.db.QueryRow(
 		ctx,
 		createBankAccountQuery,
-		account.Name,
-		account.Balance,
-	)
+		account.Name(),
+		account.Balance(),
+	).Scan(account.ID())
 
 	if err != nil {
-		return fmt.Errorf("%w: %w", createBankAccountError, err)
+		return fmt.Errorf("%w: %v", createBankAccountError, err)
 	}
 
 	return nil
@@ -88,7 +88,7 @@ func (r *BankAccountRepo) UpdateBankAccount(ctx context.Context, account *model.
 
 	cmdTag, err := r.db.Exec(
 		ctx, updateBankAccountQuery,
-		&name, &balance,
+		account.Name(), account.Balance(),
 		account.ID,
 	)
 

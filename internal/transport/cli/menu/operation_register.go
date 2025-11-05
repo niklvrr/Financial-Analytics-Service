@@ -18,7 +18,7 @@ func registerOperation(menu *Menu, operationHandler *handlers.OperationHandler) 
 
 func registerOperationSubMenu(subMenu *Menu, operationHandler *handlers.OperationHandler) {
 	createOperationItem := &MenuItem{
-		Key:     0,
+		Key:     len(subMenu.Items) + 1,
 		Title:   "Создать операцию",
 		Handler: operationHandler.CreateOperation,
 		SubMenu: nil,
@@ -26,7 +26,7 @@ func registerOperationSubMenu(subMenu *Menu, operationHandler *handlers.Operatio
 	subMenu.AddItem(createOperationItem)
 
 	getOperationItem := &MenuItem{
-		Key:     1,
+		Key:     len(subMenu.Items) + 1,
 		Title:   "Найти операцию",
 		Handler: operationHandler.GetOperation,
 		SubMenu: nil,
@@ -34,7 +34,7 @@ func registerOperationSubMenu(subMenu *Menu, operationHandler *handlers.Operatio
 	subMenu.AddItem(getOperationItem)
 
 	updateOperationItem := &MenuItem{
-		Key:     2,
+		Key:     len(subMenu.Items) + 1,
 		Title:   "Изменить операцию",
 		Handler: operationHandler.UpdateOperation,
 		SubMenu: nil,
@@ -42,7 +42,7 @@ func registerOperationSubMenu(subMenu *Menu, operationHandler *handlers.Operatio
 	subMenu.AddItem(updateOperationItem)
 
 	deleteOperationItem := &MenuItem{
-		Key:     3,
+		Key:     len(subMenu.Items) + 1,
 		Title:   "Удалить операцию",
 		Handler: operationHandler.DeleteOperation,
 		SubMenu: nil,
@@ -50,7 +50,7 @@ func registerOperationSubMenu(subMenu *Menu, operationHandler *handlers.Operatio
 	subMenu.AddItem(deleteOperationItem)
 
 	getAllOperationItem := &MenuItem{
-		Key:     4,
+		Key:     len(subMenu.Items) + 1,
 		Title:   "Найти все опарции",
 		Handler: operationHandler.GetAllOperations,
 		SubMenu: nil,

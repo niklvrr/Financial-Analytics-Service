@@ -55,8 +55,8 @@ func (m *Menu) Run(ctx context.Context) error {
 	for {
 		itemsCount := len(m.Items)
 
-		fmt.Printf("=== %s ===\n", m.Title)
-		for i := 1; i <= itemsCount; i++ {
+		fmt.Printf("%s\n", m.Title)
+		for i := 0; i < itemsCount; i++ {
 			fmt.Printf("%d) %s\n", m.Items[i].Key, m.Items[i].Title)
 		}
 		fmt.Printf("%d) Выход\n", itemsCount+1)
@@ -72,7 +72,7 @@ func (m *Menu) Run(ctx context.Context) error {
 			return nil
 		}
 
-		item := m.Items[c]
+		item := m.Items[c-1]
 		if item.SubMenu != nil {
 			err := item.SubMenu.Run(ctx)
 			if err != nil {
@@ -88,7 +88,6 @@ func (m *Menu) Run(ctx context.Context) error {
 }
 
 func inputCommand(in *bufio.Reader, itemsCount int) (int, error) {
-	fmt.Print("Введите команду: ")
 	input, err := in.ReadString('\n')
 	if err != nil {
 		return 0, err

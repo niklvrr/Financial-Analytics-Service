@@ -15,13 +15,13 @@ type Database struct {
 	Db *pgxpool.Pool
 }
 
-func NewDB(dbPath string) (*Database, error) {
+func NewDB(ctx context.Context, dbPath string) (*Database, error) {
 	if dbPath == "" {
 		return nil, dbPathIsEmptyError
 	}
 
 	var err error
-	Db, err := pgxpool.New(context.Background(), dbPath)
+	Db, err := pgxpool.New(ctx, dbPath)
 	if err != nil {
 		return nil, dbInitError
 	}

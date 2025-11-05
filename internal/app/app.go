@@ -18,12 +18,13 @@ import (
 )
 
 type App struct {
+	ctx context.Context
 	db  *infrastructure.Database
 	cfg *config.Config
 	log *slog.Logger
 }
 
-func NewApp() *App {
+func NewApp(c context.Context) *App {
 	// инициализация конфига
 	cfg, err := config.LoadConfig()
 	if err != nil {
@@ -35,7 +36,7 @@ func NewApp() *App {
 	log.Debug("Логгер инициализирован")
 
 	// инициализация бд
-	db, err := infrastructure.NewDB(cfg.Database.URL)
+	db, err := infrastructure.NewDB(c, cfg.Database.URL)
 	if err != nil {
 		log.Error(err.Error())
 	}
@@ -44,6 +45,7 @@ func NewApp() *App {
 	mustRunMigrations(cfg.Database.URL, log)
 
 	return &App{
+		ctx: c,
 		db:  db,
 		cfg: cfg,
 		log: log,
@@ -51,10 +53,10 @@ func NewApp() *App {
 }
 
 func (app *App) Run() error {
-	//err := setupApp(app.db.Db)
-	//if err != nil {
-	//	app.log.Error(err.Error())
-	//}
+	err := setupApp(app.db.Db, app.ctx)
+	if err != nil {
+		app.log.Error(err.Error())
+	}
 	app.log.Debug("Слои приложения инициализированы")
 
 	return nil

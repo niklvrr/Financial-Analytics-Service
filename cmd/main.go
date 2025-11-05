@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/app"
 	"log"
 	"os"
@@ -9,7 +10,10 @@ import (
 )
 
 func main() {
-	application := app.NewApp()
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	defer cancel()
+
+	application := app.NewApp(ctx)
 
 	setupGracefulShutdown(application)
 

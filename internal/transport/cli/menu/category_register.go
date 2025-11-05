@@ -8,7 +8,7 @@ func registerCategory(menu *Menu, categoryHandler *handlers.CategoryHandler) {
 	registerCategorySubMenu(subMenu, categoryHandler)
 
 	categoryItem := &MenuItem{
-		Key:     1,
+		Key:     len(menu.Items) + 1,
 		Title:   "Управлять категориями",
 		Handler: nil,
 		SubMenu: subMenu,
@@ -19,44 +19,42 @@ func registerCategory(menu *Menu, categoryHandler *handlers.CategoryHandler) {
 
 func registerCategorySubMenu(subMenu *Menu, categoryHandler *handlers.CategoryHandler) {
 	createMenuItem := &MenuItem{
-		Key:     0,
+		Key:     len(subMenu.Items) + 1,
 		Title:   "Создать категорию",
 		Handler: categoryHandler.CreateCategory,
 		SubMenu: nil,
 	}
+	subMenu.AddItem(createMenuItem)
 
 	getMenuItem := &MenuItem{
-		Key:     1,
+		Key:     len(subMenu.Items) + 1,
 		Title:   "Найти категорию",
 		Handler: categoryHandler.GetCategory,
 		SubMenu: nil,
 	}
+	subMenu.AddItem(getMenuItem)
 
 	updateMenuItem := &MenuItem{
-		Key:     2,
+		Key:     len(subMenu.Items) + 1,
 		Title:   "Изменить категорию",
 		Handler: categoryHandler.UpdateCategory,
 		SubMenu: nil,
 	}
+	subMenu.AddItem(updateMenuItem)
 
 	deleteMenuItem := &MenuItem{
-		Key:     3,
+		Key:     len(subMenu.Items) + 1,
 		Title:   "Удалить категорию",
 		Handler: categoryHandler.DeleteCategory,
 		SubMenu: nil,
 	}
+	subMenu.AddItem(deleteMenuItem)
 
 	getAllMenuItem := &MenuItem{
-		Key:     4,
+		Key:     len(subMenu.Items) + 1,
 		Title:   "Все категории",
 		Handler: categoryHandler.GetAllCategories,
 		SubMenu: nil,
 	}
-
-	subMenu.AddItem(createMenuItem)
-	subMenu.AddItem(getMenuItem)
-	subMenu.AddItem(getAllMenuItem)
-	subMenu.AddItem(updateMenuItem)
-	subMenu.AddItem(deleteMenuItem)
 	subMenu.AddItem(getAllMenuItem)
 }
