@@ -137,7 +137,7 @@ func (h *OperationHandler) UpdateOperation(ctx context.Context) error {
 		return err
 	}
 
-	descPrompt := "Введите новое описание операции"
+	descPrompt := "Введите новое описание операции: "
 	desc, err := utils.AskString(h.in, descPrompt)
 	if err != nil {
 		return err
@@ -190,6 +190,11 @@ func (h *OperationHandler) GetAllOperations(ctx context.Context) error {
 	ops, err := h.svc.GetAllOperations(ctx)
 	if err != nil {
 		return err
+	}
+
+	if len(ops) == 0 {
+		fmt.Println("Сохраненных операций не найдено")
+		return nil
 	}
 
 	fmt.Print("=== Данные операций ===\n")

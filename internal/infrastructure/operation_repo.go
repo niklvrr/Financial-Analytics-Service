@@ -12,20 +12,21 @@ import (
 const (
 	createOperationQuery = `
 INSERT INTO operations (kind, bank_account_id, amount, date, description, category_id)
-VALUES ($1, $2, $3, $4, $5, $6)`
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id`
 	getOperationQuery = `
 SELECT kind, bank_account_id, amount, date, description, category_id
 FROM operations
 WHERE id = $1`
 	updateOperationQuery = `
 UPDATE operations
-SET amount = $1, description = $2
-WHERE id = $3`
+SET kind = $1, bank_account_id = $2, amount = $3, date = $4, description = $5, category_id = $6
+WHERE id = $7`
 	deleteOperationQuery = `
 DELETE FROM operations
 WHERE id = $1`
 	getAllOperationsQuery = `
-SELECT kind, bank_account_id, amount, date, description, category_id
+SELECT id, kind, bank_account_id, amount, date, description, category_id
 FROM operations`
 )
 
@@ -48,20 +49,23 @@ func NewOperationRepo(db *pgxpool.Pool) *OperationRepo {
 }
 
 func (r *OperationRepo) CreateOperation(ctx context.Context, op *model.Operation) error {
+	var id int64
 	err := r.db.QueryRow(
 		ctx,
-		createCategoryQuery,
+		createOperationQuery,
 		op.Kind(),
 		op.BankAccountId(),
 		op.Amount(),
 		op.Date(),
 		op.Description(),
 		op.CategoryId(),
-	)
+	).Scan(&id)
 
 	if err != nil {
 		return fmt.Errorf("%w: %w", createOperationError, err)
 	}
+
+	op.SetID(id)
 	return nil
 }
 
@@ -107,13 +111,13 @@ func (r *OperationRepo) UpdateOperation(ctx context.Context, op *model.Operation
 	cmdTag, err := r.db.Exec(
 		ctx,
 		updateOperationQuery,
-		op.ID(),
 		op.Kind(),
 		op.BankAccountId(),
 		op.Amount(),
 		op.Date(),
 		op.Description(),
 		op.CategoryId(),
+		op.ID(),
 	)
 
 	if err != nil {

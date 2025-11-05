@@ -64,7 +64,7 @@ func (h *BankAccountHandler) GetBankAccount(ctx context.Context) error {
 		return err
 	}
 
-	fmt.Printf("=== Данные счета ===\n"+"Номер: %d\n"+"Название: %s\n"+"Баланс: %d\n",
+	fmt.Printf("=== Данные счета ===\n"+"Номер: %d\n"+"Название: %s\n"+"Баланс: %g\n",
 		res.Id, res.Name, res.Balance)
 
 	return nil
@@ -129,9 +129,14 @@ func (h *BankAccountHandler) GetAllBankAccounts(ctx context.Context) error {
 		return err
 	}
 
+	if len(accounts) == 0 {
+		fmt.Println("Сохраненных операций не найдено")
+		return nil
+	}
+
 	fmt.Print("=== Данные счетов ===\n")
 	for _, account := range accounts {
-		fmt.Printf("Номер: %d\n"+"Название: %s\n"+"Баланс: %d\n",
+		fmt.Printf("Номер: %d\n"+"Название: %s\n"+"Баланс: %g\n",
 			account.Id, account.Name, account.Balance)
 	}
 	return nil

@@ -46,18 +46,17 @@ func NewBankAccountRepo(db *pgxpool.Pool) *BankAccountRepo {
 }
 
 func (r *BankAccountRepo) CreateBankAccount(ctx context.Context, account *model.BankAccount) error {
-	err := r.db.QueryRow(
-		ctx,
-		createBankAccountQuery,
-		account.Name(),
-		account.Balance(),
-	).Scan(account.ID())
-
-	if err != nil {
-		return fmt.Errorf("%w: %v", createBankAccountError, err)
-	}
-
-	return nil
+    var id int64
+    if err := r.db.QueryRow(
+        ctx,
+        createBankAccountQuery,
+        account.Name(),
+        account.Balance(),
+    ).Scan(&id); err != nil {
+        return fmt.Errorf("%w: %v", createBankAccountError, err)
+    }
+    account.SetID(id)
+    return nil
 }
 
 func (r *BankAccountRepo) GetBankAccount(ctx context.Context, accountId int64) (*model.BankAccount, error) {
@@ -81,28 +80,22 @@ func (r *BankAccountRepo) GetBankAccount(ctx context.Context, accountId int64) (
 }
 
 func (r *BankAccountRepo) UpdateBankAccount(ctx context.Context, account *model.BankAccount) error {
-	var (
-		name    string
-		balance float64
-	)
+    cmdTag, err := r.db.Exec(
+        ctx, updateBankAccountQuery,
+        account.Name(),
+        account.Balance(),
+        account.ID(),
+    )
 
-	cmdTag, err := r.db.Exec(
-		ctx, updateBankAccountQuery,
-		account.Name(), account.Balance(),
-		account.ID,
-	)
+    if err != nil {
+        return fmt.Errorf("%w: %w", updateBankAccountError, err)
+    }
 
-	if err != nil {
-		return fmt.Errorf("%w: %w", updateBankAccountError, err)
-	}
+    if cmdTag.RowsAffected() == 0 {
+        return fmt.Errorf("%w: %w", updateBankAccountError, getBankAccountError)
+    }
 
-	if cmdTag.RowsAffected() == 0 {
-		return fmt.Errorf("%w: %w", updateBankAccountError, getBankAccountError)
-	}
-
-	account.SetName(name)
-	account.SetBalance(balance)
-	return nil
+    return nil
 }
 
 func (r *BankAccountRepo) DeleteBankAccount(ctx context.Context, accountId int64) error {

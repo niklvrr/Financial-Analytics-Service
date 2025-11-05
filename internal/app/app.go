@@ -57,7 +57,6 @@ func (app *App) Run() error {
 	if err != nil {
 		app.log.Error(err.Error())
 	}
-	app.log.Debug("Слои приложения инициализированы")
 
 	return nil
 }

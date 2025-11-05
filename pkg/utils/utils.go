@@ -19,7 +19,7 @@ func AskString(in *bufio.Reader, prompt string) (string, error) {
 }
 
 func AskInt(in *bufio.Reader, prompt string) (int, error) {
-	fmt.Println(prompt)
+	fmt.Print(prompt)
 	line, err := in.ReadString('\n')
 	if err != nil {
 		return 0, err
@@ -35,7 +35,7 @@ func AskInt(in *bufio.Reader, prompt string) (int, error) {
 }
 
 func AskFloat(in *bufio.Reader, prompt string) (float64, error) {
-	fmt.Println(prompt)
+	fmt.Print(prompt)
 	line, err := in.ReadString('\n')
 	if err != nil {
 		return 0, err

@@ -97,7 +97,8 @@ func (h *CategoryHandler) UpdateCategory(ctx context.Context) error {
 		return err
 	}
 
-	name, err := utils.AskString(h.in, kindPrompt)
+	namePrompt := "Введите новое название категории: "
+	name, err := utils.AskString(h.in, namePrompt)
 	if err != nil {
 		return err
 	}
@@ -139,6 +140,11 @@ func (h *CategoryHandler) GetAllCategories(ctx context.Context) error {
 	categories, err := h.svc.GetAllCategories(ctx)
 	if err != nil {
 		return err
+	}
+
+	if len(categories) == 0 {
+		fmt.Println("Сохраненных категорий не найдено")
+		return nil
 	}
 
 	fmt.Print("=== Данные категорий ===\n")
