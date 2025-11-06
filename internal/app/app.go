@@ -7,7 +7,6 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/config"
-	"github.com/niklvrr/Financial-Analytics-Service/pkg/di"
 	"github.com/niklvrr/Financial-Analytics-Service/pkg/logger"
 	"log"
 	"log/slog"
@@ -17,7 +16,7 @@ type App struct {
 	ctx       context.Context
 	cfg       *config.Config
 	log       *slog.Logger
-	container *di.Container
+	container *Container
 }
 
 func NewApp(c context.Context) *App {
@@ -32,7 +31,7 @@ func NewApp(c context.Context) *App {
 	log.Debug("Логгер инициализирован")
 
 	// DI контейнер (инициализирует БД, репозитории, сервисы, хэндлеры и меню)
-	container, err := di.New(c)
+	container, err := New(c)
 	if err != nil {
 		log.Error(err.Error())
 	}
