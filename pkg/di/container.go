@@ -2,6 +2,8 @@ package di
 
 import (
 	"context"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/infrastructure/proxy"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/infrastructure/repository"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/command/bank_account_commands"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/command/category_commands"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/command/operation_commands"
@@ -43,14 +45,19 @@ func New(ctx context.Context) (*Container, error) {
 	}
 
 	// инициализация репозиториев
-	bankAccountRepo := infrastructure.NewBankAccountRepo(db.Db)
-	categoryRepo := infrastructure.NewCategoryRepo(db.Db)
-	operationRepo := infrastructure.NewOperationRepo(db.Db)
+	bankAccountRepo := repository.NewBankAccountRepo(db.Db)
+	categoryRepo := repository.NewCategoryRepo(db.Db)
+	operationRepo := repository.NewOperationRepo(db.Db)
+
+	// инициализация прокси
+	bankAccountProxy := proxy.NewBankAccountProxy(bankAccountRepo)
+	categoryProxy := proxy.NewCategoryProxy(categoryRepo)
+	operationProxy := proxy.NewOperationProxy(operationRepo)
 
 	// инициализация сервисов
-	bankAccountService := service.NewBankAccountService(bankAccountRepo)
-	categoryService := service.NewCategoryService(categoryRepo)
-	operationService := service.NewOperationService(operationRepo)
+	bankAccountService := service.NewBankAccountService(bankAccountProxy)
+	categoryService := service.NewCategoryService(categoryProxy)
+	operationService := service.NewOperationService(operationProxy)
 
 	// инициализация фасадов
 	bankAccountFacade := facade.NewBankAccountFacade(bankAccountService)
@@ -98,11 +105,6 @@ func New(ctx context.Context) (*Container, error) {
 		deleteOperationCommand,
 		getAllOperationsCommand,
 	}
-
-	//// инициализация хэндлеров
-	//bankAccountHandler := handlers.NewBankAccountHandler(bankAccountService)
-	//categoryHandler := handlers.NewCategoryHandler(categoryService)
-	//operationHandler := handlers.NewOperationHandler(operationService)
 
 	// инициализация меню
 	root := menu.NewMenu("=== Главное меню ===")
