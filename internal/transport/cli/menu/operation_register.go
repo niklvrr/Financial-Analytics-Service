@@ -1,59 +1,26 @@
 package menu
 
-import "github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/handlers"
-
-func registerOperation(menu *Menu, operationHandler *handlers.OperationHandler) {
+func registerOperationCommands(menu *Menu, commands []Command, titles []string) {
 	subMenuTitle := "=== Меню управления операциями ==="
 	subMenu := NewMenu(subMenuTitle)
-	registerOperationSubMenu(subMenu, operationHandler)
+	for i := 0; i < len(commands); i++ {
+		command := commands[i]
+		title := titles[i]
+
+		item := &MenuItem{
+			Key:     len(subMenu.Items) + 1,
+			Title:   title,
+			Command: command,
+			SubMenu: subMenu,
+		}
+		subMenu.AddItem(item)
+	}
 
 	operationItem := &MenuItem{
 		Key:     len(menu.Items) + 1,
 		Title:   "Управлять операциями",
-		Handler: nil,
+		Command: nil,
 		SubMenu: subMenu,
 	}
 	menu.AddItem(operationItem)
-}
-
-func registerOperationSubMenu(subMenu *Menu, operationHandler *handlers.OperationHandler) {
-	createOperationItem := &MenuItem{
-		Key:     len(subMenu.Items) + 1,
-		Title:   "Создать операцию",
-		Handler: operationHandler.CreateOperation,
-		SubMenu: nil,
-	}
-	subMenu.AddItem(createOperationItem)
-
-	getOperationItem := &MenuItem{
-		Key:     len(subMenu.Items) + 1,
-		Title:   "Найти операцию",
-		Handler: operationHandler.GetOperation,
-		SubMenu: nil,
-	}
-	subMenu.AddItem(getOperationItem)
-
-	updateOperationItem := &MenuItem{
-		Key:     len(subMenu.Items) + 1,
-		Title:   "Изменить операцию",
-		Handler: operationHandler.UpdateOperation,
-		SubMenu: nil,
-	}
-	subMenu.AddItem(updateOperationItem)
-
-	deleteOperationItem := &MenuItem{
-		Key:     len(subMenu.Items) + 1,
-		Title:   "Удалить операцию",
-		Handler: operationHandler.DeleteOperation,
-		SubMenu: nil,
-	}
-	subMenu.AddItem(deleteOperationItem)
-
-	getAllOperationItem := &MenuItem{
-		Key:     len(subMenu.Items) + 1,
-		Title:   "Найти все опарции",
-		Handler: operationHandler.GetAllOperations,
-		SubMenu: nil,
-	}
-	subMenu.AddItem(getAllOperationItem)
 }

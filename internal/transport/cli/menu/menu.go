@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/handlers"
 	"os"
 	"strconv"
 	"strings"
@@ -24,7 +23,7 @@ type HandlerFunc func(ctx context.Context) error
 type MenuItem struct {
 	Key     int
 	Title   string
-	Handler HandlerFunc
+	Command Command
 	SubMenu *Menu
 }
 
@@ -42,13 +41,33 @@ func NewMenu(title string) *Menu {
 	}
 }
 
-func (m *Menu) Build(
-	bankAccountHandler *handlers.BankAccountHandler,
-	categoryHandler *handlers.CategoryHandler,
-	operationHandler *handlers.OperationHandler) {
-	registerBankAccount(m, bankAccountHandler)
-	registerCategory(m, categoryHandler)
-	registerOperation(m, operationHandler)
+func (m *Menu) Build(bankAccountCommands, categoryCommands, operationCommands []Command) {
+	bankAccountCommandsTitles := []string{
+		"Создать банковский счет",
+		"Найти банковкий счет",
+		"Изменить банковский счет",
+		"Удалить банковский счет",
+		"Найти все банковсие счета",
+	}
+	registerBankAccountCommands(m, bankAccountCommands, bankAccountCommandsTitles)
+
+	categoryCommandsTitles := []string{
+		"Создать категорию",
+		"Найти категорию",
+		"Изменить категорию",
+		"Удалить категорию",
+		"Все категории",
+	}
+	registerCategoryCommands(m, categoryCommands, categoryCommandsTitles)
+
+	operationCommandsTitles := []string{
+		"Создать операцию",
+		"Найти операцию",
+		"Изменить операцию",
+		"Удалить операцию",
+		"Найти все опарции",
+	}
+	registerOperationCommands(m, operationCommands, operationCommandsTitles)
 }
 
 func (m *Menu) AddItem(item *MenuItem) {
@@ -82,8 +101,8 @@ func (m *Menu) Run(ctx context.Context) error {
 			if err != nil {
 				return err
 			}
-		} else if item.Handler != nil {
-			err := item.Handler(ctx)
+		} else if item.Command != nil {
+			err := item.Command.Execute(ctx)
 			if err != nil {
 				return err
 			}

@@ -2,12 +2,15 @@ package di
 
 import (
 	"context"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/command/bank_account_commands"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/command/category_commands"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/command/operation_commands"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase/facade"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase/service"
 	"log/slog"
 
 	"github.com/niklvrr/Financial-Analytics-Service/internal/config"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/infrastructure"
-	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/handlers"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/menu"
 	"github.com/niklvrr/Financial-Analytics-Service/pkg/logger"
 )
@@ -18,21 +21,6 @@ type Container struct {
 	Log *slog.Logger
 
 	DB infrastructure.Database
-
-	// репозитории
-	BankAccountRepo *infrastructure.BankAccountRepo
-	CategoryRepo    *infrastructure.CategoryRepo
-	OperationRepo   *infrastructure.OperationRepo
-
-	// сервисы
-	BankAccountService *service.BankAccountService
-	CategoryService    *service.CategoryService
-	OperationService   *service.OperationService
-
-	// хэндлеры
-	BankAccountHandler *handlers.BankAccountHandler
-	CategoryHandler    *handlers.CategoryHandler
-	OperationHandler   *handlers.OperationHandler
 
 	Menu *menu.Menu
 }
@@ -64,33 +52,66 @@ func New(ctx context.Context) (*Container, error) {
 	categoryService := service.NewCategoryService(categoryRepo)
 	operationService := service.NewOperationService(operationRepo)
 
-	// инициализация хэндлеров
-	bankAccountHandler := handlers.NewBankAccountHandler(bankAccountService)
-	categoryHandler := handlers.NewCategoryHandler(categoryService)
-	operationHandler := handlers.NewOperationHandler(operationService)
+	// инициализация фасадов
+	bankAccountFacade := facade.NewBankAccountFacade(bankAccountService)
+	categoryFacade := facade.NewCategoryFacade(categoryService)
+	operationFacade := facade.NewOperationFacade(operationService)
+
+	// инициализация команд банковского счета
+	createBankAccountCommand := bank_account_commands.NewCreateBankAccountCommand(bankAccountFacade)
+	getBankAccountCommand := bank_account_commands.NewGetBankAccountCommand(bankAccountFacade)
+	updateBankAccountCommand := bank_account_commands.NewUpdateBankAccountCommand(bankAccountFacade)
+	deleteBankAccountCommand := bank_account_commands.NewDeleteBankAccountCommand(bankAccountFacade)
+	getAllBankAccountsCommand := bank_account_commands.NewGetAllBankAccountsCommand(bankAccountFacade)
+	bankAccountCommands := []menu.Command{
+		createBankAccountCommand,
+		getBankAccountCommand,
+		updateBankAccountCommand,
+		deleteBankAccountCommand,
+		getAllBankAccountsCommand,
+	}
+
+	// инициализация команд категории
+	createCategoryCommand := category_commands.NewCreateCategoryCommand(categoryFacade)
+	getCategoryCommand := category_commands.NewGetCategoryCommand(categoryFacade)
+	updateCategoryCommand := category_commands.NewUpdateCategoryCommand(categoryFacade)
+	deleteCategoryCommand := category_commands.NewDeleteCategoryCommand(categoryFacade)
+	getAllCategoriesCommand := category_commands.NewGetAllCategoriesCommand(categoryFacade)
+	categoryCommands := []menu.Command{
+		createCategoryCommand,
+		getCategoryCommand,
+		updateCategoryCommand,
+		deleteCategoryCommand,
+		getAllCategoriesCommand,
+	}
+
+	// инициализация команд операций
+	createOperationCommand := operation_commands.NewCreateOperationCommand(operationFacade)
+	getOperationCommand := operation_commands.NewGetOperationCommand(operationFacade)
+	updateOperationCommand := operation_commands.NewUpdateOperationCommand(operationFacade)
+	deleteOperationCommand := operation_commands.NewDeleteOperationCommand(operationFacade)
+	getAllOperationsCommand := operation_commands.NewGetAllOperationsCommand(operationFacade)
+	operationCommands := []menu.Command{
+		createOperationCommand,
+		getOperationCommand,
+		updateOperationCommand,
+		deleteOperationCommand,
+		getAllOperationsCommand,
+	}
+
+	//// инициализация хэндлеров
+	//bankAccountHandler := handlers.NewBankAccountHandler(bankAccountService)
+	//categoryHandler := handlers.NewCategoryHandler(categoryService)
+	//operationHandler := handlers.NewOperationHandler(operationService)
 
 	// инициализация меню
 	root := menu.NewMenu("=== Главное меню ===")
-	root.Build(bankAccountHandler, categoryHandler, operationHandler)
+	root.Build(bankAccountCommands, categoryCommands, operationCommands)
 
 	return &Container{
-		Ctx: ctx,
-		Cfg: cfg,
-		Log: lg,
-		DB:  db,
-
-		BankAccountRepo: bankAccountRepo,
-		CategoryRepo:    categoryRepo,
-		OperationRepo:   operationRepo,
-
-		BankAccountService: bankAccountService,
-		CategoryService:    categoryService,
-		OperationService:   operationService,
-
-		BankAccountHandler: bankAccountHandler,
-		CategoryHandler:    categoryHandler,
-		OperationHandler:   operationHandler,
-
+		Ctx:  ctx,
+		Cfg:  cfg,
+		Log:  lg,
 		Menu: root,
 	}, nil
 }

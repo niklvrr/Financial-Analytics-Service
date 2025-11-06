@@ -29,7 +29,7 @@ func (f *CategoryFacade) UpdateCategory(ctx context.Context, req *request.Update
 	return f.svc.UpdateCategory(ctx, req)
 }
 
-func (f *CategoryFacade) DeleteCategory(ctx context.Context, req *request.GetCategoryRequest) error {
+func (f *CategoryFacade) DeleteCategory(ctx context.Context, req *request.DeleteCategoryRequest) error {
 	return f.DeleteCategory(ctx, req)
 }
 

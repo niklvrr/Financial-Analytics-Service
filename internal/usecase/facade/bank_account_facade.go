@@ -8,10 +8,10 @@ import (
 )
 
 type BankAccountFacade struct {
-	svc service.BankAccountService
+	svc *service.BankAccountService
 }
 
-func NewBankAccountFacade(svc service.BankAccountService) *BankAccountFacade {
+func NewBankAccountFacade(svc *service.BankAccountService) *BankAccountFacade {
 	return &BankAccountFacade{
 		svc: svc,
 	}
