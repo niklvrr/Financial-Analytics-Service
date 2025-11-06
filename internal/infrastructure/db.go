@@ -11,11 +11,15 @@ var (
 	dbInitError        = errors.New("database init error")
 )
 
-type Database struct {
+type Database interface {
+	Close()
+}
+
+type PostgreSQL struct {
 	Db *pgxpool.Pool
 }
 
-func NewDB(ctx context.Context, dbPath string) (*Database, error) {
+func NewPostgreSqlDb(ctx context.Context, dbPath string) (*PostgreSQL, error) {
 	if dbPath == "" {
 		return nil, dbPathIsEmptyError
 	}
@@ -26,11 +30,11 @@ func NewDB(ctx context.Context, dbPath string) (*Database, error) {
 		return nil, dbInitError
 	}
 
-	return &Database{
+	return &PostgreSQL{
 		Db: Db,
 	}, nil
 }
 
-func (d *Database) Close() {
+func (d *PostgreSQL) Close() {
 	d.Db.Close()
 }

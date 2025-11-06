@@ -15,6 +15,10 @@ var (
 	incorrectCommandError = errors.New("Неизвестная команда")
 )
 
+type Command interface {
+	Execute(ctx context.Context) error
+}
+
 type HandlerFunc func(ctx context.Context) error
 
 type MenuItem struct {

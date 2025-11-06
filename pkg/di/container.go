@@ -2,13 +2,13 @@ package di
 
 import (
 	"context"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase/service"
 	"log/slog"
 
 	"github.com/niklvrr/Financial-Analytics-Service/internal/config"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/infrastructure"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/handlers"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/menu"
-	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase"
 	"github.com/niklvrr/Financial-Analytics-Service/pkg/logger"
 )
 
@@ -17,7 +17,7 @@ type Container struct {
 	Cfg *config.Config
 	Log *slog.Logger
 
-	DB *infrastructure.Database
+	DB infrastructure.Database
 
 	// репозитории
 	BankAccountRepo *infrastructure.BankAccountRepo
@@ -25,9 +25,9 @@ type Container struct {
 	OperationRepo   *infrastructure.OperationRepo
 
 	// сервисы
-	BankAccountService *usecase.BankAccountService
-	CategoryService    *usecase.CategoryService
-	OperationService   *usecase.OperationService
+	BankAccountService *service.BankAccountService
+	CategoryService    *service.CategoryService
+	OperationService   *service.OperationService
 
 	// хэндлеры
 	BankAccountHandler *handlers.BankAccountHandler
@@ -48,7 +48,7 @@ func New(ctx context.Context) (*Container, error) {
 	lg := logger.NewLog(cfg.App.Env)
 
 	// инициализация базы данных
-	db, err := infrastructure.NewDB(ctx, cfg.Database.URL)
+	db, err := infrastructure.NewPostgreSqlDb(ctx, cfg.Database.URL)
 	if err != nil {
 		lg.Error(err.Error())
 		return nil, err
@@ -60,9 +60,9 @@ func New(ctx context.Context) (*Container, error) {
 	operationRepo := infrastructure.NewOperationRepo(db.Db)
 
 	// инициализация сервисов
-	bankAccountService := usecase.NewBankAccountService(bankAccountRepo)
-	categoryService := usecase.NewCategoryService(categoryRepo)
-	operationService := usecase.NewOperationService(operationRepo)
+	bankAccountService := service.NewBankAccountService(bankAccountRepo)
+	categoryService := service.NewCategoryService(categoryRepo)
+	operationService := service.NewOperationService(operationRepo)
 
 	// инициализация хэндлеров
 	bankAccountHandler := handlers.NewBankAccountHandler(bankAccountService)
