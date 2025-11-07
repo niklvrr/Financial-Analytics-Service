@@ -6,6 +6,7 @@ import (
 	"github.com/niklvrr/Financial-Analytics-Service/internal/infrastructure/repository"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/command/bank_account_commands"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/command/category_commands"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/command/decorator"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/transport/cli/command/operation_commands"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase/facade"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase/service"
@@ -71,11 +72,11 @@ func New(ctx context.Context) (*Container, error) {
 	deleteBankAccountCommand := bank_account_commands.NewDeleteBankAccountCommand(bankAccountFacade)
 	getAllBankAccountsCommand := bank_account_commands.NewGetAllBankAccountsCommand(bankAccountFacade)
 	bankAccountCommands := []menu.Command{
-		createBankAccountCommand,
-		getBankAccountCommand,
-		updateBankAccountCommand,
-		deleteBankAccountCommand,
-		getAllBankAccountsCommand,
+		decorator.WithLogging(createBankAccountCommand, lg),
+		decorator.WithLogging(getBankAccountCommand, lg),
+		decorator.WithLogging(updateBankAccountCommand, lg),
+		decorator.WithLogging(deleteBankAccountCommand, lg),
+		decorator.WithLogging(getAllBankAccountsCommand, lg),
 	}
 
 	// инициализация команд категории
@@ -85,11 +86,11 @@ func New(ctx context.Context) (*Container, error) {
 	deleteCategoryCommand := category_commands.NewDeleteCategoryCommand(categoryFacade)
 	getAllCategoriesCommand := category_commands.NewGetAllCategoriesCommand(categoryFacade)
 	categoryCommands := []menu.Command{
-		createCategoryCommand,
-		getCategoryCommand,
-		updateCategoryCommand,
-		deleteCategoryCommand,
-		getAllCategoriesCommand,
+		decorator.WithLogging(createCategoryCommand, lg),
+		decorator.WithLogging(getCategoryCommand, lg),
+		decorator.WithLogging(updateCategoryCommand, lg),
+		decorator.WithLogging(deleteCategoryCommand, lg),
+		decorator.WithLogging(getAllCategoriesCommand, lg),
 	}
 
 	// инициализация команд операций
@@ -99,11 +100,11 @@ func New(ctx context.Context) (*Container, error) {
 	deleteOperationCommand := operation_commands.NewDeleteOperationCommand(operationFacade)
 	getAllOperationsCommand := operation_commands.NewGetAllOperationsCommand(operationFacade)
 	operationCommands := []menu.Command{
-		createOperationCommand,
-		getOperationCommand,
-		updateOperationCommand,
-		deleteOperationCommand,
-		getAllOperationsCommand,
+		decorator.WithLogging(createOperationCommand, lg),
+		decorator.WithLogging(getOperationCommand, lg),
+		decorator.WithLogging(updateOperationCommand, lg),
+		decorator.WithLogging(deleteOperationCommand, lg),
+		decorator.WithLogging(getAllOperationsCommand, lg),
 	}
 
 	// инициализация меню
