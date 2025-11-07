@@ -47,12 +47,8 @@ func NewApp(c context.Context) *App {
 	}
 }
 
-func (app *App) Run() error {
-	if err := app.container.Run(); err != nil {
-		app.log.Error(err.Error())
-		return err
-	}
-	return nil
+func (app *App) Run() {
+	app.container.Run()
 }
 
 func (app *App) Stop() {

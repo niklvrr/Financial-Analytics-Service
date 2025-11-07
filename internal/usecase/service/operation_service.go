@@ -18,16 +18,18 @@ type OperationRepo interface {
 
 type OperationService struct {
 	operationRepo OperationRepo
+	fabric        *model.DomainFabric
 }
 
 func NewOperationService(operationRepo OperationRepo) *OperationService {
 	return &OperationService{
 		operationRepo: operationRepo,
+		fabric:        &model.DomainFabric{},
 	}
 }
 
 func (s *OperationService) CreateOperation(ctx context.Context, req *request.CreateOperationRequest) error {
-	op := model.NewOperation(
+	op, err := s.fabric.BuildOperation(
 		0,
 		req.Kind,
 		req.BankAccountId,
@@ -36,8 +38,11 @@ func (s *OperationService) CreateOperation(ctx context.Context, req *request.Cre
 		req.Description,
 		req.CategoryId,
 	)
+	if err != nil {
+		return err
+	}
 
-	err := s.operationRepo.CreateOperation(ctx, op)
+	err = s.operationRepo.CreateOperation(ctx, op)
 	if err != nil {
 		return err
 	}
@@ -64,8 +69,7 @@ func (s *OperationService) GetOperation(ctx context.Context, req *request.GetOpe
 }
 
 func (s *OperationService) UpdateOperation(ctx context.Context, req *request.UpdateOperationRequest) error {
-	op := model.NewOperation(
-		req.Id,
+	op, err := s.fabric.BuildOperation(req.Id,
 		req.Kind,
 		req.BankAccountId,
 		req.Amount,
@@ -73,8 +77,11 @@ func (s *OperationService) UpdateOperation(ctx context.Context, req *request.Upd
 		req.Description,
 		req.CategoryId,
 	)
+	if err != nil {
+		return err
+	}
 
-	err := s.operationRepo.UpdateOperation(ctx, op)
+	err = s.operationRepo.UpdateOperation(ctx, op)
 	if err != nil {
 		return err
 	}

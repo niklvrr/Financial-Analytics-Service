@@ -10,16 +10,14 @@ import (
 )
 
 func main() {
-	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
 	application := app.NewApp(ctx)
 
 	setupGracefulShutdown(application)
 
-	if err := application.Run(); err != nil {
-		log.Fatal(err)
-	}
+	application.Run()
 }
 
 func setupGracefulShutdown(app *app.App) {
@@ -28,7 +26,7 @@ func setupGracefulShutdown(app *app.App) {
 
 	go func() {
 		sig := <-sigChan
-		log.Println("Получен сигнал завершения: %v", sig)
+		log.Printf("Получен сигнал завершения: %s", sig.String())
 		app.Stop()
 		os.Exit(0)
 	}()

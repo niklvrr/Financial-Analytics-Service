@@ -124,6 +124,6 @@ func (c *Container) Close() {
 	}
 }
 
-func (c *Container) Run() error {
-	return c.Menu.Run(c.Ctx)
+func (c *Container) Run() {
+	c.Menu.Run(c.Ctx)
 }

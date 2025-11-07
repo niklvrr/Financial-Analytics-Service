@@ -16,15 +16,23 @@ type BankAccountRepo interface {
 }
 
 type BankAccountService struct {
-	repo BankAccountRepo
+	repo   BankAccountRepo
+	fabric *model.DomainFabric
 }
 
 func NewBankAccountService(repo BankAccountRepo) *BankAccountService {
-	return &BankAccountService{repo: repo}
+	return &BankAccountService{
+		repo:   repo,
+		fabric: &model.DomainFabric{},
+	}
 }
 
 func (s *BankAccountService) CreateBankAccount(ctx context.Context, req *request.CreateBankAccountRequest) error {
-	account := model.NewBankAccount(0, req.Name, 0)
+	account, err := s.fabric.BuildBankAccount(0, req.Name, 0)
+	if err != nil {
+		return err
+	}
+
 	if err := s.repo.CreateBankAccount(ctx, account); err != nil {
 		return err
 	}
@@ -48,7 +56,11 @@ func (s *BankAccountService) GetBankAccount(ctx context.Context, req *request.Ge
 }
 
 func (s *BankAccountService) UpdateBankAccount(ctx context.Context, req *request.UpdateBankAccountRequest) error {
-	account := model.NewBankAccount(req.Id, req.Name, req.Balance)
+	account, err := s.fabric.BuildBankAccount(req.Id, req.Name, req.Balance)
+	if err != nil {
+		return err
+	}
+
 	if err := s.repo.UpdateBankAccount(ctx, account); err != nil {
 		return err
 	}

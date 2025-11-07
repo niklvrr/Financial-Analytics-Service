@@ -16,16 +16,24 @@ type CategoryRepo interface {
 }
 
 type CategoryService struct {
-	repo CategoryRepo
+	repo   CategoryRepo
+	fabric *model.DomainFabric
 }
 
 func NewCategoryService(repo CategoryRepo) *CategoryService {
-	return &CategoryService{repo: repo}
+	return &CategoryService{
+		repo:   repo,
+		fabric: &model.DomainFabric{},
+	}
 }
 
 func (s *CategoryService) CreateCategory(ctx context.Context, req *request.CreateCategoryRequest) error {
-	category := model.NewCategory(0, req.Kind, req.Name)
-	err := s.repo.CreateCategory(ctx, category)
+	category, err := s.fabric.BuildCategory(0, req.Kind, req.Name)
+	if err != nil {
+		return err
+	}
+
+	err = s.repo.CreateCategory(ctx, category)
 	if err != nil {
 		return err
 	}
@@ -49,8 +57,12 @@ func (s *CategoryService) GetCategory(ctx context.Context, req *request.GetCateg
 }
 
 func (s *CategoryService) UpdateCategory(ctx context.Context, req *request.UpdateCategoryRequest) error {
-	category := model.NewCategory(req.Id, req.Kind, req.Name)
-	err := s.repo.UpdateCategory(ctx, category)
+	category, err := s.fabric.BuildCategory(req.Id, req.Kind, req.Name)
+	if err != nil {
+		return err
+	}
+
+	err = s.repo.UpdateCategory(ctx, category)
 	if err != nil {
 		return err
 	}

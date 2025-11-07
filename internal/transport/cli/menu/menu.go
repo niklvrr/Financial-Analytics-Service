@@ -74,7 +74,7 @@ func (m *Menu) AddItem(item *MenuItem) {
 	m.Items = append(m.Items, item)
 }
 
-func (m *Menu) Run(ctx context.Context) error {
+func (m *Menu) Run(ctx context.Context) {
 	for {
 		itemsCount := len(m.Items)
 
@@ -92,19 +92,16 @@ func (m *Menu) Run(ctx context.Context) error {
 		}
 
 		if c == itemsCount+1 {
-			return nil
+			return
 		}
 
 		item := m.Items[c-1]
 		if item.SubMenu != nil {
-			err := item.SubMenu.Run(ctx)
-			if err != nil {
-				return err
-			}
+			item.SubMenu.Run(ctx)
 		} else if item.Command != nil {
 			err := item.Command.Execute(ctx)
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 		}
 	}
