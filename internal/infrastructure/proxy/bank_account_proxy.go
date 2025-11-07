@@ -4,17 +4,20 @@ import (
 	"context"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/domain/model"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/infrastructure/repository"
+	"log/slog"
 )
 
 type BankAccountProxy struct {
 	repository *repository.BankAccountRepo
 	cache      map[int64]*model.BankAccount
+	log        *slog.Logger
 }
 
-func NewBankAccountProxy(repository *repository.BankAccountRepo) *BankAccountProxy {
+func NewBankAccountProxy(repository *repository.BankAccountRepo, log *slog.Logger) *BankAccountProxy {
 	return &BankAccountProxy{
 		repository: repository,
 		cache:      make(map[int64]*model.BankAccount),
+		log:        log,
 	}
 }
 
@@ -24,11 +27,13 @@ func (p *BankAccountProxy) CreateBankAccount(ctx context.Context, account *model
 		return err
 	}
 	p.cache[account.ID()] = account
+	p.log.Debug("Счет добавлен в кэш")
 	return nil
 }
 
 func (p *BankAccountProxy) GetBankAccount(ctx context.Context, accountId int64) (*model.BankAccount, error) {
 	if account, ok := p.cache[accountId]; ok {
+		p.log.Debug("Счет взят из кэша")
 		return account, nil
 	}
 
@@ -37,6 +42,7 @@ func (p *BankAccountProxy) GetBankAccount(ctx context.Context, accountId int64) 
 		return nil, err
 	}
 	p.cache[accountId] = account
+	p.log.Debug("Счет добавлен в кэш")
 	return account, nil
 }
 
@@ -46,6 +52,7 @@ func (p *BankAccountProxy) UpdateBankAccount(ctx context.Context, account *model
 		return err
 	}
 	p.cache[account.ID()] = account
+	p.log.Debug("Счет добавлен в кэш")
 	return nil
 }
 
@@ -56,6 +63,7 @@ func (p *BankAccountProxy) DeleteBankAccount(ctx context.Context, accountId int6
 	}
 
 	delete(p.cache, accountId)
+	p.log.Debug("Счет удален из кэша")
 	return nil
 }
 

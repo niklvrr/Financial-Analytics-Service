@@ -1,23 +1,8 @@
 package model
 
 import (
-	"errors"
+	"github.com/niklvrr/Financial-Analytics-Service/pkg/utils"
 	"time"
-)
-
-var (
-	incorrectIdError      = errors.New("Ошибка некорректный уникальный номер")
-	incorrectNameError    = errors.New("Ошибка некорректное имя")
-	incorrectBalanceError = errors.New("Ошибка некорректный баланс")
-	incorrectKindError    = errors.New("Ошибка некорректный тип")
-	incorrectAmountError  = errors.New("Ошибка некорректная сумма")
-)
-
-const (
-	incomeKindRus      = "доход"
-	incomeKindEng      = "income"
-	expenditureKindRus = "расход"
-	expenditureKindEng = "expenditure"
 )
 
 type DomainFabric struct {
@@ -28,32 +13,38 @@ func NewDomainFabric() *DomainFabric {
 }
 
 func (f *DomainFabric) BuildBankAccount(id int64, name string, balance float64) (*BankAccount, error) {
-	if id < 0 {
-		return nil, incorrectIdError
+	err := utils.ValidateInt64(id)
+	if err != nil {
+		return nil, err
 	}
 
-	if len(name) == 0 {
-		return nil, incorrectNameError
+	err = utils.ValidateString(name)
+	if err != nil {
+		return nil, err
 	}
 
-	if balance < 0 {
-		return nil, incorrectBalanceError
+	err = utils.ValidateFloat(balance)
+	if err != nil {
+		return nil, err
 	}
 
 	return NewBankAccount(id, name, balance), nil
 }
 
 func (f *DomainFabric) BuildCategory(id int64, kind, name string) (*Category, error) {
-	if id < 0 {
-		return nil, incorrectIdError
+	err := utils.ValidateInt64(id)
+	if err != nil {
+		return nil, err
 	}
 
-	if len(name) == 0 {
-		return nil, incorrectNameError
+	err = utils.ValidateString(name)
+	if err != nil {
+		return nil, err
 	}
 
-	if kind != incomeKindRus && kind != expenditureKindRus && kind != incomeKindEng && kind != expenditureKindEng {
-		return nil, incorrectKindError
+	err = utils.ValidateKind(kind)
+	if err != nil {
+		return nil, err
 	}
 
 	return NewCategory(id, name, kind), nil
@@ -67,24 +58,30 @@ func (f *DomainFabric) BuildOperation(
 	date time.Time,
 	description string,
 	categoryId int64) (*Operation, error) {
-	if id < 0 {
-		return nil, incorrectIdError
+
+	err := utils.ValidateInt64(id)
+	if err != nil {
+		return nil, err
 	}
 
-	if kind != incomeKindRus && kind != expenditureKindRus && kind != incomeKindEng && kind != expenditureKindEng {
-		return nil, incorrectKindError
+	err = utils.ValidateKind(kind)
+	if err != nil {
+		return nil, err
 	}
 
-	if bankAccountId < 0 {
-		return nil, incorrectIdError
+	err = utils.ValidateInt64(id)
+	if err != nil {
+		return nil, err
 	}
 
-	if amount < 0 {
-		return nil, incorrectAmountError
+	err = utils.ValidateFloat(amount)
+	if err != nil {
+		return nil, err
 	}
 
-	if categoryId < 0 {
-		return nil, incorrectIdError
+	err = utils.ValidateInt64(id)
+	if err != nil {
+		return nil, err
 	}
 
 	return NewOperation(id, kind, bankAccountId, amount, date, description, categoryId), nil

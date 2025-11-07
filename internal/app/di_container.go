@@ -51,9 +51,9 @@ func New(ctx context.Context) (*Container, error) {
 	operationRepo := repository.NewOperationRepo(db.Db)
 
 	// инициализация прокси
-	bankAccountProxy := proxy.NewBankAccountProxy(bankAccountRepo)
-	categoryProxy := proxy.NewCategoryProxy(categoryRepo)
-	operationProxy := proxy.NewOperationProxy(operationRepo)
+	bankAccountProxy := proxy.NewBankAccountProxy(bankAccountRepo, lg)
+	categoryProxy := proxy.NewCategoryProxy(categoryRepo, lg)
+	operationProxy := proxy.NewOperationProxy(operationRepo, lg)
 
 	// инициализация сервисов
 	bankAccountService := service.NewBankAccountService(bankAccountProxy)

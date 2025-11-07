@@ -2,9 +2,15 @@ package facade
 
 import (
 	"context"
+	"errors"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/domain/request"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/domain/response"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase/importer/bank_account_importer"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase/service"
+)
+
+var (
+	unsupportedFileFormatError = errors.New("Ошибка неподдерживаемый формат файла")
 )
 
 type BankAccountFacade struct {
@@ -35,4 +41,23 @@ func (f *BankAccountFacade) DeleteBankAccount(ctx context.Context, req *request.
 
 func (f *BankAccountFacade) GetAllBankAccounts(ctx context.Context) ([]*response.BankAccountResponse, error) {
 	return f.svc.GetAllBankAccounts(ctx)
+}
+
+func (f *BankAccountFacade) ImportDataFromFile(ctx context.Context, path, format string) error {
+	var importer bank_account_importer.BankAccountImporter
+	switch format {
+	case "csv":
+		importer = bank_account_importer.NewBankAccountCSVImporter(f.svc)
+	case "json":
+		importer = bank_account_importer.NewBankAccountJSONImporter(f.svc)
+	case "yaml":
+		importer = bank_account_importer.NewBankAccountYamlImporter(f.svc)
+	default:
+		return unsupportedFileFormatError
+	}
+
+	t := bank_account_importer.Template{
+		Impl: importer,
+	}
+	return t.Run(ctx, path)
 }
