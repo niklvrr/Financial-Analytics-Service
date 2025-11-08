@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/domain/request"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/domain/response"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase/importer/category_importer"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase/service"
 )
 
@@ -35,4 +36,27 @@ func (f *CategoryFacade) DeleteCategory(ctx context.Context, req *request.Delete
 
 func (f *CategoryFacade) GetAllCategories(ctx context.Context) ([]*response.CategoryResponse, error) {
 	return f.svc.GetAllCategories(ctx)
+}
+
+func (f *CategoryFacade) ImportCategoryFromFile(ctx context.Context, path, format string) error {
+	var importer category_importer.CategoryImporter
+	switch format {
+	case "csv":
+		importer = category_importer.NewCSVCategoryImporter(f.svc)
+	case "json":
+		importer = category_importer.NewJSONCategoryImporter(f.svc)
+	case "yaml":
+		importer = category_importer.NewYamlCategoryImporter(f.svc)
+	default:
+		return unsupportedFileFormatError
+	}
+
+	t := category_importer.CategoryTemplate{
+		Impl: importer,
+	}
+	err := t.Run(ctx, path)
+	if err != nil {
+		return err
+	}
+	return nil
 }

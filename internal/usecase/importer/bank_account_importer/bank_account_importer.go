@@ -11,11 +11,11 @@ type BankAccountImporter interface {
 	Save(ctx context.Context, data []*request.CreateBankAccountRequest) error
 }
 
-type Template struct {
+type BankAccountTemplate struct {
 	Impl BankAccountImporter
 }
 
-func (t *Template) Run(ctx context.Context, path string) error {
+func (t *BankAccountTemplate) Run(ctx context.Context, path string) error {
 	data, err := t.Impl.Load(path)
 	if err != nil {
 		return err

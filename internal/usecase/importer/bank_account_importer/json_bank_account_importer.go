@@ -9,17 +9,17 @@ import (
 	"os"
 )
 
-type BankAccountJSONImporter struct {
+type JSONBankAccountImporter struct {
 	svc *service.BankAccountService
 }
 
-func NewBankAccountJSONImporter(svc *service.BankAccountService) *BankAccountJSONImporter {
-	return &BankAccountJSONImporter{
+func NewJSONBankAccountImporter(svc *service.BankAccountService) *JSONBankAccountImporter {
+	return &JSONBankAccountImporter{
 		svc: svc,
 	}
 }
 
-func (b *BankAccountJSONImporter) Load(path string) ([]*request.CreateBankAccountRequest, error) {
+func (b *JSONBankAccountImporter) Load(path string) ([]*request.CreateBankAccountRequest, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		panic(err)
@@ -33,7 +33,7 @@ func (b *BankAccountJSONImporter) Load(path string) ([]*request.CreateBankAccoun
 	return reqs, nil
 }
 
-func (b *BankAccountJSONImporter) Validate(data []*request.CreateBankAccountRequest) error {
+func (b *JSONBankAccountImporter) Validate(data []*request.CreateBankAccountRequest) error {
 	for _, req := range data {
 		err := utils.ValidateString(req.Name)
 		if err != nil {
@@ -48,7 +48,7 @@ func (b *BankAccountJSONImporter) Validate(data []*request.CreateBankAccountRequ
 	return nil
 }
 
-func (b *BankAccountJSONImporter) Save(ctx context.Context, data []*request.CreateBankAccountRequest) error {
+func (b *JSONBankAccountImporter) Save(ctx context.Context, data []*request.CreateBankAccountRequest) error {
 	for _, req := range data {
 		err := b.svc.CreateBankAccount(ctx, req)
 		if err != nil {

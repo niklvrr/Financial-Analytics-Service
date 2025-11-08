@@ -9,17 +9,17 @@ import (
 	"os"
 )
 
-type BankAccountYamlImporter struct {
+type YamlBankAccountImporter struct {
 	svc *service.BankAccountService
 }
 
-func NewBankAccountYamlImporter(svc *service.BankAccountService) *BankAccountYamlImporter {
-	return &BankAccountYamlImporter{
+func NewYamlBankAccountImporter(svc *service.BankAccountService) *YamlBankAccountImporter {
+	return &YamlBankAccountImporter{
 		svc: svc,
 	}
 }
 
-func (b *BankAccountYamlImporter) Load(path string) ([]*request.CreateBankAccountRequest, error) {
+func (b *YamlBankAccountImporter) Load(path string) ([]*request.CreateBankAccountRequest, error) {
 	data, err := os.ReadFile("config.yaml")
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (b *BankAccountYamlImporter) Load(path string) ([]*request.CreateBankAccoun
 	return reqs, nil
 }
 
-func (b *BankAccountYamlImporter) Validate(data []*request.CreateBankAccountRequest) error {
+func (b *YamlBankAccountImporter) Validate(data []*request.CreateBankAccountRequest) error {
 	for _, req := range data {
 		err := utils.ValidateString(req.Name)
 		if err != nil {
@@ -48,7 +48,7 @@ func (b *BankAccountYamlImporter) Validate(data []*request.CreateBankAccountRequ
 	return nil
 }
 
-func (b *BankAccountYamlImporter) Save(ctx context.Context, data []*request.CreateBankAccountRequest) error {
+func (b *YamlBankAccountImporter) Save(ctx context.Context, data []*request.CreateBankAccountRequest) error {
 	for _, req := range data {
 		err := b.svc.CreateBankAccount(ctx, req)
 		if err != nil {

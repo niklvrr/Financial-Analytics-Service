@@ -1,4 +1,4 @@
-package bank_account_commands
+package category_commands
 
 import (
 	"bufio"
@@ -9,19 +9,19 @@ import (
 	"path/filepath"
 )
 
-type ImportBankAccountCommand struct {
-	f  *facade.BankAccountFacade
+type ImportCategoryCommand struct {
+	f  *facade.CategoryFacade
 	in *bufio.Reader
 }
 
-func NewImportBankAccountCommand(f *facade.BankAccountFacade) *ImportBankAccountCommand {
-	return &ImportBankAccountCommand{
+func NewImportCategoryCommand(f *facade.CategoryFacade) *ImportCategoryCommand {
+	return &ImportCategoryCommand{
 		f:  f,
 		in: bufio.NewReader(os.Stdin),
 	}
 }
 
-func (c *ImportBankAccountCommand) Execute(ctx context.Context) error {
+func (c *ImportCategoryCommand) Execute(ctx context.Context) error {
 	prompt := "Введите полный путь до файла: "
 	path, err := utils.AskString(c.in, prompt)
 	if err != nil {
@@ -29,5 +29,5 @@ func (c *ImportBankAccountCommand) Execute(ctx context.Context) error {
 	}
 
 	format := filepath.Ext(path)
-	return c.f.ImportBankAccountsFromFile(ctx, path, format)
+	return c.f.ImportCategoryFromFile(ctx, path, format)
 }
