@@ -20,7 +20,7 @@ func NewYamlOperationImporter(svc *service.OperationService) *YamlOperationImpor
 }
 
 func (c *YamlOperationImporter) Load(path string) ([]*request.CreateOperationRequest, error) {
-	data, err := os.ReadFile("config.yaml")
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

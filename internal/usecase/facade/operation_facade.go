@@ -39,11 +39,11 @@ func (f *OperationFacade) GetAllOperations(ctx context.Context) ([]*response.Ope
 func (f *OperationFacade) ImportOperationFromFile(ctx context.Context, path, format string) error {
 	var importer operation_importer.OperationImporter
 	switch format {
-	case "csv":
+	case ".csv":
 		importer = operation_importer.NewCSVOperationImporter(f.svc)
-	case "json":
+	case ".json":
 		importer = operation_importer.NewJSONOperationImporter(f.svc)
-	case "yaml":
+	case ".yaml":
 		importer = operation_importer.NewYamlOperationImporter(f.svc)
 	default:
 		return unsupportedFileFormatError

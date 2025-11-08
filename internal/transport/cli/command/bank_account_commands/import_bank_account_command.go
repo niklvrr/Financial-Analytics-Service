@@ -3,6 +3,7 @@ package bank_account_commands
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase/facade"
 	"github.com/niklvrr/Financial-Analytics-Service/pkg/utils"
 	"os"
@@ -31,7 +32,13 @@ func (c *ImportBankAccountCommand) Execute(ctx context.Context) error {
 	}
 
 	format := filepath.Ext(path)
-	return c.f.ImportBankAccountsFromFile(ctx, path, format)
+	err = c.f.ImportBankAccountsFromFile(ctx, path, format)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Данные успешно прочитаны из файла!")
+	return nil
 }
 
 func (c *ImportBankAccountCommand) Title() string {

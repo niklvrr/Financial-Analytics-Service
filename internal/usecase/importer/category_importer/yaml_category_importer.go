@@ -20,7 +20,7 @@ func NewYamlCategoryImporter(svc *service.CategoryService) *YamlCategoryImporter
 }
 
 func (imp *YamlCategoryImporter) Load(path string) ([]*request.CreateCategoryRequest, error) {
-	data, err := os.ReadFile("config.yaml")
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

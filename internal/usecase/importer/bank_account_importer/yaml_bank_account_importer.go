@@ -20,7 +20,7 @@ func NewYamlBankAccountImporter(svc *service.BankAccountService) *YamlBankAccoun
 }
 
 func (b *YamlBankAccountImporter) Load(path string) ([]*request.CreateBankAccountRequest, error) {
-	data, err := os.ReadFile("config.yaml")
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

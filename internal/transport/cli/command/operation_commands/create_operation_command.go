@@ -43,7 +43,7 @@ func (c *CreateOperationCommand) Execute(ctx context.Context) error {
 		return err
 	}
 
-	descPrompt := "Введите описание операции"
+	descPrompt := "Введите описание операции: "
 	desc, err := utils.AskString(c.in, descPrompt)
 	if err != nil {
 		return err

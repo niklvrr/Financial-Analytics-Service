@@ -10,7 +10,7 @@ func registerOperationCommands(menu *Menu, commands []Command) {
 			Key:     len(subMenu.Items) + 1,
 			Title:   command.Title(),
 			Command: command,
-			SubMenu: subMenu,
+			SubMenu: nil,
 		}
 		subMenu.AddItem(item)
 	}

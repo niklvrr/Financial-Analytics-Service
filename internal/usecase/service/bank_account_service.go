@@ -28,7 +28,7 @@ func NewBankAccountService(repo BankAccountRepo) *BankAccountService {
 }
 
 func (s *BankAccountService) CreateBankAccount(ctx context.Context, req *request.CreateBankAccountRequest) error {
-	account, err := s.fabric.BuildBankAccount(0, req.Name, 0)
+	account, err := s.fabric.BuildBankAccount(0, req.Name, req.Balance)
 	if err != nil {
 		return err
 	}

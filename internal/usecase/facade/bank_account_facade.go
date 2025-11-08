@@ -46,11 +46,11 @@ func (f *BankAccountFacade) GetAllBankAccounts(ctx context.Context) ([]*response
 func (f *BankAccountFacade) ImportBankAccountsFromFile(ctx context.Context, path, format string) error {
 	var importer bank_account_importer.BankAccountImporter
 	switch format {
-	case "csv":
+	case ".csv":
 		importer = bank_account_importer.NewCSVBankAccountImporter(f.svc)
-	case "json":
+	case ".json":
 		importer = bank_account_importer.NewJSONBankAccountImporter(f.svc)
-	case "yaml":
+	case ".yaml":
 		importer = bank_account_importer.NewYamlBankAccountImporter(f.svc)
 	default:
 		return unsupportedFileFormatError

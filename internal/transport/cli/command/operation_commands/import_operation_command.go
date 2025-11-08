@@ -3,6 +3,7 @@ package operation_commands
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase/facade"
 	"github.com/niklvrr/Financial-Analytics-Service/pkg/utils"
 	"os"
@@ -31,7 +32,12 @@ func (c *ImportOperationCommand) Execute(ctx context.Context) error {
 	}
 
 	format := filepath.Ext(path)
-	return c.f.ImportOperationFromFile(ctx, path, format)
+	err = c.f.ImportOperationFromFile(ctx, path, format)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Данные успешно прочитаны из файла!")
+	return nil
 }
 
 func (c *ImportOperationCommand) Title() string {

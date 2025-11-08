@@ -41,11 +41,11 @@ func (f *CategoryFacade) GetAllCategories(ctx context.Context) ([]*response.Cate
 func (f *CategoryFacade) ImportCategoryFromFile(ctx context.Context, path, format string) error {
 	var importer category_importer.CategoryImporter
 	switch format {
-	case "csv":
+	case ".csv":
 		importer = category_importer.NewCSVCategoryImporter(f.svc)
-	case "json":
+	case ".json":
 		importer = category_importer.NewJSONCategoryImporter(f.svc)
-	case "yaml":
+	case ".yaml":
 		importer = category_importer.NewYamlCategoryImporter(f.svc)
 	default:
 		return unsupportedFileFormatError

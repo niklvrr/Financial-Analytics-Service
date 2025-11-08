@@ -1,0 +1,29 @@
+- kind: "доход"
+  bank_account_id: 1
+  amount: 500.00
+  description: "Заработная плата за август"
+  category_id: 1
+
+- kind: "доход"
+  bank_account_id: 3
+  amount: 12.50
+  description: "Проценты по вкладу"
+  category_id: 2
+
+- kind: "расход"
+  bank_account_id: 1
+  amount: 45.20
+  description: "Покупка продуктов в магазине"
+  category_id: 3
+
+- kind: "расход"
+  bank_account_id: 2
+  amount: 15.00
+  description: "Проезд на такси"
+  category_id: 4
+
+- kind: "расход"
+  bank_account_id: 1
+  amount: 1200.00
+  description: "Выходной — ресторан и кино"
+  category_id: 5
