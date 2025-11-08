@@ -11,14 +11,16 @@ import (
 )
 
 type GetCategoryCommand struct {
-	f *facade.CategoryFacade
-	in *bufio.Reader
+	f     *facade.CategoryFacade
+	in    *bufio.Reader
+	title string
 }
 
 func NewGetCategoryCommand(f *facade.CategoryFacade) *GetCategoryCommand {
 	return &GetCategoryCommand{
-		f: f,
-		in: bufio.NewReader(os.Stdin),
+		f:     f,
+		in:    bufio.NewReader(os.Stdin),
+		title: "Найти категорию",
 	}
 }
 
@@ -47,4 +49,8 @@ func (c *GetCategoryCommand) Execute(ctx context.Context) error {
 		category.Name)
 
 	return nil
+}
+
+func (c *GetCategoryCommand) Title() string {
+	return c.title
 }

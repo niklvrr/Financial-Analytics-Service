@@ -26,7 +26,7 @@ func (c *CategoryTemplate) Run(ctx context.Context, path string) error {
 		return err
 	}
 
-	err = c.Impl.Save(data)
+	err = c.Impl.Save(ctx, data)
 	if err != nil {
 		return err
 	}

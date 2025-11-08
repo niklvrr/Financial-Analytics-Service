@@ -71,12 +71,14 @@ func New(ctx context.Context) (*Container, error) {
 	updateBankAccountCommand := bank_account_commands.NewUpdateBankAccountCommand(bankAccountFacade)
 	deleteBankAccountCommand := bank_account_commands.NewDeleteBankAccountCommand(bankAccountFacade)
 	getAllBankAccountsCommand := bank_account_commands.NewGetAllBankAccountsCommand(bankAccountFacade)
+	importBankAccountCommand := bank_account_commands.NewImportBankAccountCommand(bankAccountFacade)
 	bankAccountCommands := []menu.Command{
 		decorator.WithLogging(createBankAccountCommand, lg),
 		decorator.WithLogging(getBankAccountCommand, lg),
 		decorator.WithLogging(updateBankAccountCommand, lg),
 		decorator.WithLogging(deleteBankAccountCommand, lg),
 		decorator.WithLogging(getAllBankAccountsCommand, lg),
+		decorator.WithLogging(importBankAccountCommand, lg),
 	}
 
 	// инициализация команд категории
@@ -85,12 +87,14 @@ func New(ctx context.Context) (*Container, error) {
 	updateCategoryCommand := category_commands.NewUpdateCategoryCommand(categoryFacade)
 	deleteCategoryCommand := category_commands.NewDeleteCategoryCommand(categoryFacade)
 	getAllCategoriesCommand := category_commands.NewGetAllCategoriesCommand(categoryFacade)
+	importCategoryCommand := category_commands.NewImportCategoryCommand(categoryFacade)
 	categoryCommands := []menu.Command{
 		decorator.WithLogging(createCategoryCommand, lg),
 		decorator.WithLogging(getCategoryCommand, lg),
 		decorator.WithLogging(updateCategoryCommand, lg),
 		decorator.WithLogging(deleteCategoryCommand, lg),
 		decorator.WithLogging(getAllCategoriesCommand, lg),
+		decorator.WithLogging(importCategoryCommand, lg),
 	}
 
 	// инициализация команд операций
@@ -99,12 +103,14 @@ func New(ctx context.Context) (*Container, error) {
 	updateOperationCommand := operation_commands.NewUpdateOperationCommand(operationFacade)
 	deleteOperationCommand := operation_commands.NewDeleteOperationCommand(operationFacade)
 	getAllOperationsCommand := operation_commands.NewGetAllOperationsCommand(operationFacade)
+	importOperationCommand := operation_commands.NewImportOperationCommand(operationFacade)
 	operationCommands := []menu.Command{
 		decorator.WithLogging(createOperationCommand, lg),
 		decorator.WithLogging(getOperationCommand, lg),
 		decorator.WithLogging(updateOperationCommand, lg),
 		decorator.WithLogging(deleteOperationCommand, lg),
 		decorator.WithLogging(getAllOperationsCommand, lg),
+		decorator.WithLogging(importOperationCommand, lg),
 	}
 
 	// инициализация меню

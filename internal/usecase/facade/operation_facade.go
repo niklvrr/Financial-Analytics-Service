@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/domain/request"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/domain/response"
+	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase/importer/operation_importer"
 	"github.com/niklvrr/Financial-Analytics-Service/internal/usecase/service"
 )
 
@@ -33,4 +34,23 @@ func (f *OperationFacade) DeleteOperation(ctx context.Context, req *request.Dele
 
 func (f *OperationFacade) GetAllOperations(ctx context.Context) ([]*response.OperationResponse, error) {
 	return f.svc.GetAllOperations(ctx)
+}
+
+func (f *OperationFacade) ImportOperationFromFile(ctx context.Context, path, format string) error {
+	var importer operation_importer.OperationImporter
+	switch format {
+	case "csv":
+		importer = operation_importer.NewCSVOperationImporter(f.svc)
+	case "json":
+		importer = operation_importer.NewJSONOperationImporter(f.svc)
+	case "yaml":
+		importer = operation_importer.NewYamlOperationImporter(f.svc)
+	default:
+		return unsupportedFileFormatError
+	}
+
+	t := operation_importer.OperationTemplate{
+		Impl: importer,
+	}
+	return t.Run(ctx, path)
 }

@@ -11,14 +11,16 @@ import (
 )
 
 type GetBankAccountsCommand struct {
-	f  *facade.BankAccountFacade
-	in *bufio.Reader
+	f     *facade.BankAccountFacade
+	in    *bufio.Reader
+	title string
 }
 
 func NewGetBankAccountCommand(facade *facade.BankAccountFacade) *GetBankAccountsCommand {
 	return &GetBankAccountsCommand{
-		f:  facade,
-		in: bufio.NewReader(os.Stdin),
+		f:     facade,
+		in:    bufio.NewReader(os.Stdin),
+		title: "Найти банковкий счет",
 	}
 }
 
@@ -41,4 +43,8 @@ func (c *GetBankAccountsCommand) Execute(ctx context.Context) error {
 		res.Id, res.Name, res.Balance)
 
 	return nil
+}
+
+func (c *GetBankAccountsCommand) Title() string {
+	return c.title
 }

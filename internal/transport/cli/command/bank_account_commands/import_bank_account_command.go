@@ -10,14 +10,16 @@ import (
 )
 
 type ImportBankAccountCommand struct {
-	f  *facade.BankAccountFacade
-	in *bufio.Reader
+	f     *facade.BankAccountFacade
+	in    *bufio.Reader
+	title string
 }
 
 func NewImportBankAccountCommand(f *facade.BankAccountFacade) *ImportBankAccountCommand {
 	return &ImportBankAccountCommand{
-		f:  f,
-		in: bufio.NewReader(os.Stdin),
+		f:     f,
+		in:    bufio.NewReader(os.Stdin),
+		title: "Импорт банковских счетов из файла",
 	}
 }
 
@@ -30,4 +32,8 @@ func (c *ImportBankAccountCommand) Execute(ctx context.Context) error {
 
 	format := filepath.Ext(path)
 	return c.f.ImportBankAccountsFromFile(ctx, path, format)
+}
+
+func (c *ImportBankAccountCommand) Title() string {
+	return c.title
 }

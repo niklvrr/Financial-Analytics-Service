@@ -11,14 +11,16 @@ import (
 )
 
 type CreateOperationCommand struct {
-	f *facade.OperationFacade
-	in *bufio.Reader
+	f     *facade.OperationFacade
+	in    *bufio.Reader
+	title string
 }
 
 func NewCreateOperationCommand(f *facade.OperationFacade) *CreateOperationCommand {
 	return &CreateOperationCommand{
-		f: f,
-		in: bufio.NewReader(os.Stdin),
+		f:     f,
+		in:    bufio.NewReader(os.Stdin),
+		title: "Создать операцию",
 	}
 }
 
@@ -68,4 +70,8 @@ func (c *CreateOperationCommand) Execute(ctx context.Context) error {
 
 	fmt.Println("Операция успешно создана!")
 	return nil
+}
+
+func (c *CreateOperationCommand) Title() string {
+	return c.title
 }

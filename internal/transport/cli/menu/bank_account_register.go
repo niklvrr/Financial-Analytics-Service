@@ -1,15 +1,14 @@
 package menu
 
-func registerBankAccountCommands(menu *Menu, commands []Command, titles []string) {
+func registerBankAccountCommands(menu *Menu, commands []Command) {
 	subMenuTitle := "=== Меню управления счетами ==="
 	subMenu := NewMenu(subMenuTitle)
 	for i := 0; i < len(commands); i++ {
 		command := commands[i]
-		title := titles[i]
 
 		item := &MenuItem{
 			Key:     len(subMenu.Items) + 1,
-			Title:   title,
+			Title:   command.Title(),
 			Command: command,
 			SubMenu: nil,
 		}

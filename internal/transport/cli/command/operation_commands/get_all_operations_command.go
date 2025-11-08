@@ -9,14 +9,16 @@ import (
 )
 
 type GetAllOperationsCommand struct {
-	f *facade.OperationFacade
-	in *bufio.Reader
+	f     *facade.OperationFacade
+	in    *bufio.Reader
+	title string
 }
 
 func NewGetAllOperationsCommand(f *facade.OperationFacade) *GetAllOperationsCommand {
 	return &GetAllOperationsCommand{
-		f: f,
-		in: bufio.NewReader(os.Stdin),
+		f:     f,
+		in:    bufio.NewReader(os.Stdin),
+		title: "Найти все опарции",
 	}
 }
 
@@ -49,4 +51,8 @@ func (c *GetAllOperationsCommand) Execute(ctx context.Context) error {
 			operation.CategoryId)
 	}
 	return nil
+}
+
+func (c *GetAllOperationsCommand) Title() string {
+	return c.title
 }

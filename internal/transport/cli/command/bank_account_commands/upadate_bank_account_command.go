@@ -11,14 +11,16 @@ import (
 )
 
 type UpdateBankAccountCommand struct {
-	f  *facade.BankAccountFacade
-	in *bufio.Reader
+	f     *facade.BankAccountFacade
+	in    *bufio.Reader
+	title string
 }
 
 func NewUpdateBankAccountCommand(f *facade.BankAccountFacade) *UpdateBankAccountCommand {
 	return &UpdateBankAccountCommand{
-		f:  f,
-		in: bufio.NewReader(os.Stdin),
+		f:     f,
+		in:    bufio.NewReader(os.Stdin),
+		title: "Изменить банковский счет",
 	}
 }
 
@@ -53,4 +55,8 @@ func (c *UpdateBankAccountCommand) Execute(ctx context.Context) error {
 	}
 	fmt.Println("Данные счета успешно изменены!")
 	return nil
+}
+
+func (c *UpdateBankAccountCommand) Title() string {
+	return c.title
 }

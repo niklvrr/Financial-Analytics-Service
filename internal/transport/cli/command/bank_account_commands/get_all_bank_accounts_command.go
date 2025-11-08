@@ -9,14 +9,16 @@ import (
 )
 
 type GetAllBankAccountsCommand struct {
-	f  *facade.BankAccountFacade
-	in *bufio.Reader
+	f     *facade.BankAccountFacade
+	in    *bufio.Reader
+	title string
 }
 
 func NewGetAllBankAccountsCommand(f *facade.BankAccountFacade) *GetAllBankAccountsCommand {
 	return &GetAllBankAccountsCommand{
-		f:  f,
-		in: bufio.NewReader(os.Stdin),
+		f:     f,
+		in:    bufio.NewReader(os.Stdin),
+		title: "Найти все банковсие счета",
 	}
 }
 
@@ -37,4 +39,8 @@ func (c *GetAllBankAccountsCommand) Execute(ctx context.Context) error {
 			account.Id, account.Name, account.Balance)
 	}
 	return nil
+}
+
+func (c *GetAllBankAccountsCommand) Title() string {
+	return c.title
 }

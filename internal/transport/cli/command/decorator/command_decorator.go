@@ -23,6 +23,10 @@ func (d *LoggingDecorator) Execute(ctx context.Context) error {
 	return err
 }
 
+func (d *LoggingDecorator) Title() string {
+	return d.c.Title()
+}
+
 func WithLogging(command menu.Command, log *slog.Logger) menu.Command {
 	return &LoggingDecorator{
 		c:   command,

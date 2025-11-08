@@ -11,14 +11,16 @@ import (
 )
 
 type DeleteOperationCommand struct {
-	f *facade.OperationFacade
-	in *bufio.Reader
+	f     *facade.OperationFacade
+	in    *bufio.Reader
+	title string
 }
 
 func NewDeleteOperationCommand(f *facade.OperationFacade) *DeleteOperationCommand {
 	return &DeleteOperationCommand{
-		f: f,
-		in: bufio.NewReader(os.Stdin),
+		f:     f,
+		in:    bufio.NewReader(os.Stdin),
+		title: "Удалить операцию",
 	}
 }
 
@@ -40,4 +42,8 @@ func (c *DeleteOperationCommand) Execute(ctx context.Context) error {
 
 	fmt.Println("Операция успешно удалена!")
 	return nil
+}
+
+func (c *DeleteOperationCommand) Title() string {
+	return c.title
 }

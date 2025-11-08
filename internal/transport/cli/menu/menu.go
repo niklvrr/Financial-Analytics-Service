@@ -16,9 +16,8 @@ var (
 
 type Command interface {
 	Execute(ctx context.Context) error
+	Title() string
 }
-
-type HandlerFunc func(ctx context.Context) error
 
 type MenuItem struct {
 	Key     int
@@ -42,32 +41,9 @@ func NewMenu(title string) *Menu {
 }
 
 func (m *Menu) Build(bankAccountCommands, categoryCommands, operationCommands []Command) {
-	bankAccountCommandsTitles := []string{
-		"Создать банковский счет",
-		"Найти банковкий счет",
-		"Изменить банковский счет",
-		"Удалить банковский счет",
-		"Найти все банковсие счета",
-	}
-	registerBankAccountCommands(m, bankAccountCommands, bankAccountCommandsTitles)
-
-	categoryCommandsTitles := []string{
-		"Создать категорию",
-		"Найти категорию",
-		"Изменить категорию",
-		"Удалить категорию",
-		"Все категории",
-	}
-	registerCategoryCommands(m, categoryCommands, categoryCommandsTitles)
-
-	operationCommandsTitles := []string{
-		"Создать операцию",
-		"Найти операцию",
-		"Изменить операцию",
-		"Удалить операцию",
-		"Найти все опарции",
-	}
-	registerOperationCommands(m, operationCommands, operationCommandsTitles)
+	registerBankAccountCommands(m, bankAccountCommands)
+	registerCategoryCommands(m, categoryCommands)
+	registerOperationCommands(m, operationCommands)
 }
 
 func (m *Menu) AddItem(item *MenuItem) {

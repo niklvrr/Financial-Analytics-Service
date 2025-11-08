@@ -11,14 +11,16 @@ import (
 )
 
 type DeleteCategoryCommand struct {
-	f *facade.CategoryFacade
-	in *bufio.Reader
+	f     *facade.CategoryFacade
+	in    *bufio.Reader
+	title string
 }
 
 func NewDeleteCategoryCommand(f *facade.CategoryFacade) *DeleteCategoryCommand {
 	return &DeleteCategoryCommand{
-		f: f,
-		in: bufio.NewReader(os.Stdin),
+		f:     f,
+		in:    bufio.NewReader(os.Stdin),
+		title: "Удалить категорию",
 	}
 }
 
@@ -39,4 +41,8 @@ func (c *DeleteCategoryCommand) Execute(ctx context.Context) error {
 
 	fmt.Println("Категория успешно удалена!")
 	return nil
+}
+
+func (c *DeleteCategoryCommand) Title() string {
+	return c.title
 }

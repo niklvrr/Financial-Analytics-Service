@@ -11,14 +11,16 @@ import (
 )
 
 type UpdateOperationCommand struct {
-	f *facade.OperationFacade
-	in *bufio.Reader
+	f     *facade.OperationFacade
+	in    *bufio.Reader
+	title string
 }
 
 func NewUpdateOperationCommand(f *facade.OperationFacade) *UpdateOperationCommand {
 	return &UpdateOperationCommand{
-		f: f,
-		in: bufio.NewReader(os.Stdin),
+		f:     f,
+		in:    bufio.NewReader(os.Stdin),
+		title: "Изменить операцию",
 	}
 }
 
@@ -74,4 +76,8 @@ func (c *UpdateOperationCommand) Execute(ctx context.Context) error {
 	}
 	fmt.Println("Операция успешно изменена!")
 	return nil
+}
+
+func (c *UpdateOperationCommand) Title() string {
+	return c.title
 }

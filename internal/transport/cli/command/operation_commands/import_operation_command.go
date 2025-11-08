@@ -1,4 +1,4 @@
-package category_commands
+package operation_commands
 
 import (
 	"bufio"
@@ -9,21 +9,21 @@ import (
 	"path/filepath"
 )
 
-type ImportCategoryCommand struct {
-	f     *facade.CategoryFacade
+type ImportOperationCommand struct {
+	f     *facade.OperationFacade
 	in    *bufio.Reader
 	title string
 }
 
-func NewImportCategoryCommand(f *facade.CategoryFacade) *ImportCategoryCommand {
-	return &ImportCategoryCommand{
+func NewImportOperationCommand(f *facade.OperationFacade) *ImportOperationCommand {
+	return &ImportOperationCommand{
 		f:     f,
 		in:    bufio.NewReader(os.Stdin),
-		title: "Импорт категорий из файла",
+		title: "Импорт операций из файла",
 	}
 }
 
-func (c *ImportCategoryCommand) Execute(ctx context.Context) error {
+func (c *ImportOperationCommand) Execute(ctx context.Context) error {
 	prompt := "Введите полный путь до файла: "
 	path, err := utils.AskString(c.in, prompt)
 	if err != nil {
@@ -31,9 +31,9 @@ func (c *ImportCategoryCommand) Execute(ctx context.Context) error {
 	}
 
 	format := filepath.Ext(path)
-	return c.f.ImportCategoryFromFile(ctx, path, format)
+	return c.f.ImportOperationFromFile(ctx, path, format)
 }
 
-func (c *ImportCategoryCommand) Title() string {
+func (c *ImportOperationCommand) Title() string {
 	return c.title
 }

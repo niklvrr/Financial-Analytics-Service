@@ -11,14 +11,16 @@ import (
 )
 
 type CreateCategoryCommand struct {
-	f *facade.CategoryFacade
-	in *bufio.Reader
+	f     *facade.CategoryFacade
+	in    *bufio.Reader
+	title string
 }
 
 func NewCreateCategoryCommand(f *facade.CategoryFacade) *CreateCategoryCommand {
 	return &CreateCategoryCommand{
-		f: f,
-		in: bufio.NewReader(os.Stdin),
+		f:     f,
+		in:    bufio.NewReader(os.Stdin),
+		title: "Создать категорию",
 	}
 }
 
@@ -47,4 +49,8 @@ func (c *CreateCategoryCommand) Execute(ctx context.Context) error {
 
 	fmt.Println("Категория успешно создана!")
 	return nil
+}
+
+func (c *CreateCategoryCommand) Title() string {
+	return c.title
 }

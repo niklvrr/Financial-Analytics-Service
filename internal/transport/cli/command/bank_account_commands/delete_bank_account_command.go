@@ -11,14 +11,16 @@ import (
 )
 
 type DeleteBankAccountCommand struct {
-	f  *facade.BankAccountFacade
-	in *bufio.Reader
+	f     *facade.BankAccountFacade
+	in    *bufio.Reader
+	title string
 }
 
 func NewDeleteBankAccountCommand(f *facade.BankAccountFacade) *DeleteBankAccountCommand {
 	return &DeleteBankAccountCommand{
-		f:  f,
-		in: bufio.NewReader(os.Stdin),
+		f:     f,
+		in:    bufio.NewReader(os.Stdin),
+		title: "Удалить банковский счет",
 	}
 }
 
@@ -40,4 +42,8 @@ func (c *DeleteBankAccountCommand) Execute(ctx context.Context) error {
 	fmt.Println("Счет успешно удален!")
 
 	return nil
+}
+
+func (c *DeleteBankAccountCommand) Title() string {
+	return c.title
 }

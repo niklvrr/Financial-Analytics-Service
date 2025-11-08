@@ -11,14 +11,16 @@ import (
 )
 
 type UpdateCategoryCommand struct {
-	f *facade.CategoryFacade
-	in *bufio.Reader
+	f     *facade.CategoryFacade
+	in    *bufio.Reader
+	title string
 }
 
 func NewUpdateCategoryCommand(f *facade.CategoryFacade) *UpdateCategoryCommand {
 	return &UpdateCategoryCommand{
-		f: f,
-		in: bufio.NewReader(os.Stdin),
+		f:     f,
+		in:    bufio.NewReader(os.Stdin),
+		title: "Изменить категорию",
 	}
 }
 
@@ -53,4 +55,8 @@ func (c *UpdateCategoryCommand) Execute(ctx context.Context) error {
 
 	fmt.Println("Категория успещно изменена!")
 	return nil
+}
+
+func (c *UpdateCategoryCommand) Title() string {
+	return c.title
 }
