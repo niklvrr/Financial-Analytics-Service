@@ -1,498 +1,537 @@
 # Financial Analytics Service
 
-Система учета финансов с поддержкой банковских счетов, категорий и операций. Реализована на Go с использованием многослойной архитектуры и паттернов проектирования.
+## Описание проекта
 
-## Содержание
-
-1. [Общая идея решения](#общая-идея-решения)
-2. [Принципы SOLID](#принципы-solid)
-3. [Принципы GRASP](#принципы-grasp)
-4. [Паттерны GoF](#паттерны-gof)
-5. [Инструкция по запуску](#инструкция-по-запуску)
+Financial Analytics Service — это консольное приложение для управления финансовыми операциями, банковскими счетами и категориями операций. Приложение реализует полный CRUD функционал для всех сущностей, а также поддерживает импорт данных из файлов различных форматов (CSV, JSON, YAML).
 
 ---
 
-## Общая идея решения
+## 1. Функциональность доменной модели
+
+### Доменные сущности
+
+#### 1.1. BankAccount (Банковский счет)
+**Модуль:** `internal/domain/model/bank_account_model.go`
+
+**Поля:**
+- `id` (int64) - уникальный идентификатор счета
+- `name` (string) - название счета
+- `balance` (float64) - баланс счета
+
+**Функциональность:**
+- Создание банковского счета с валидацией данных
+- Получение информации о счете по ID
+- Обновление данных счета (название, баланс)
+- Удаление счета
+- Получение списка всех счетов
+- Импорт счетов из файлов (CSV, JSON, YAML)
+
+#### 1.2. Category (Категория операций)
+**Модуль:** `internal/domain/model/category_model.go`
+
+**Поля:**
+- `id` (int64) - уникальный идентификатор категории
+- `kind` (string) - тип категории ("доход"/"income" или "расход"/"expenditure")
+- `name` (string) - название категории
+
+**Функциональность:**
+- Создание категории с валидацией типа (доход/расход)
+- Получение категории по ID
+- Обновление категории
+- Удаление категории
+- Получение списка всех категорий
+- Импорт категорий из файлов (CSV, JSON, YAML)
+
+#### 1.3. Operation (Финансовая операция)
+**Модуль:** `internal/domain/model/operation_model.go`
+
+**Поля:**
+- `id` (int64) - уникальный идентификатор операции
+- `kind` (string) - тип операции ("доход"/"income" или "расход"/"expenditure")
+- `bankAccountId` (int64) - ссылка на банковский счет
+- `amount` (float64) - сумма операции
+- `date` (time.Time) - дата операции
+- `description` (string) - описание операции
+- `categoryId` (int64) - ссылка на категорию
+
+**Функциональность:**
+- Создание финансовой операции с валидацией всех полей
+- Получение операции по ID
+- Обновление операции
+- Удаление операции
+- Получение списка всех операций
+- Импорт операций из файлов (CSV, JSON, YAML)
+
+### Дополнительная функциональность
+
+#### DomainFabric (Фабрика доменных объектов)
+**Модуль:** `internal/domain/model/fabric.go`
+
+Централизованное создание доменных объектов с валидацией:
+- `BuildBankAccount()` - создание и валидация банковского счета
+- `BuildCategory()` - создание и валидация категории
+- `BuildOperation()` - создание и валидация операции
+
+---
+
+## 2. Общая идея решения
+
+### Архитектура приложения
+
+Приложение построено по принципам **Clean Architecture** с разделением на слои:
+
+1. **Domain Layer** (`internal/domain/`)
+   - Доменные модели (entities)
+   - Фабрика для создания объектов
+   - Request/Response DTO
+
+2. **UseCase Layer** (`internal/usecase/`)
+   - Сервисы бизнес-логики
+   - Фасады для упрощения взаимодействия
+   - Импортеры и экспортеры для работы с файлами
+
+3. **Infrastructure Layer** (`internal/infrastructure/`)
+   - Репозитории для работы с БД
+   - Прокси для кэширования
+   - Декораторы для дополнительной функциональности
+
+4. **Transport Layer** (`internal/transport/`)
+   - CLI интерфейс
+   - Команды (Command pattern)
+   - Меню для навигации
 
 ### Реализованный функционал
 
-Проект представляет собой CLI-приложение для управления финансовыми данными с поддержкой следующих операций:
+#### Основные операции (CRUD)
+- Создание сущностей (BankAccount, Category, Operation)
+- Получение сущности по ID
+- Получение всех сущностей
+- Обновление сущностей
+- Удаление сущностей
 
-#### Управление банковскими счетами
-- Создание, чтение, обновление, удаление счетов
-- Получение списка всех счетов
-- Импорт счетов из файлов (CSV, JSON, YAML)
-- **Экспорт счетов в файлы (CSV, JSON, YAML)** — новая функциональность
+#### Импорт данных
+- Импорт из CSV файлов
+- Импорт из JSON файлов
+- Импорт из YAML файлов
+- Валидация импортируемых данных
 
-#### Управление категориями
-- CRUD операции для категорий
-- Импорт категорий из файлов
-- **Экспорт категорий в файлы** — новая функциональность
+#### Экспорт данных
+- Экспорт в CSV файлы
+- Экспорт в JSON файлы
+- Экспорт в YAML файлы
 
-#### Управление операциями
-- CRUD операции для финансовых операций
-- Импорт операций из файлов
-- **Экспорт операций в файлы с различными стратегиями фильтрации** — новая функциональность:
-  - Полный экспорт всех операций
-  - Экспорт по ID банковского счета
-  - Экспорт по ID категории
-  - Экспорт за указанный период (date range)
-
-### Архитектура решения
-
-Проект построен на основе **многослойной архитектуры (Layered Architecture)**:
-
-```
-┌─────────────────────────────────────┐
-│   Transport Layer (CLI)             │
-│   - Команды (Command pattern)      │
-│   - Меню (Menu system)              │
-└─────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────┐
-│   Use Case Layer                    │
-│   - Сервисы (Business Logic)         │
-│   - Фасады (Facade pattern)         │
-│   - Импортеры (Template Method)     │
-│   - Экспортеры (Builder + Strategy) │
-└─────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────┐
-│   Domain Layer                      │
-│   - Модели (Domain Models)          │
-│   - Request/Response DTOs           │
-│   - Фабрика (Factory pattern)       │
-└─────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────┐
-│   Infrastructure Layer              │
-│   - Репозитории (Repository)        │
-│   - Прокси (Proxy pattern)          │
-│   - База данных (PostgreSQL)        │
-└─────────────────────────────────────┘
-```
-
-### Ключевые изменения и дополнения
-
-1. **Система экспорта данных** — реализована с использованием паттернов Builder и Strategy:
-   - Builder для построения отчетов в различных форматах (CSV, JSON, YAML)
-   - Strategy для выбора стратегии фильтрации данных при экспорте
-   - Названия полей в экспортируемых файлах соответствуют полям из `internal/domain/request`
-
-2. **DI-контейнер** — централизованная инициализация зависимостей в `internal/app/di_container.go`
-
-3. **Система декораторов** — добавление кросс-срезочных аспектов (логирование) к командам
+#### Дополнительные возможности
+- Кэширование данных через Proxy паттерн
+- Логирование операций через Decorator паттерн
+- Валидация данных на всех уровнях
+- Миграции базы данных
+- Graceful shutdown
 
 ---
 
-## Принципы SOLID
+## 3. Принципы SOLID и GRASP
 
-### 1. Single Responsibility Principle (SRP)
+### 3.1. Принципы SOLID
 
-**Каждый класс имеет одну причину для изменения.**
+#### Single Responsibility Principle (SRP) - Принцип единственной ответственности
 
-**Реализация:**
-- **`internal/usecase/service/*_service.go`** — сервисы отвечают только за бизнес-логику конкретной сущности
-- **`internal/infrastructure/repository/*_repo.go`** — репозитории отвечают только за работу с БД
-- **`internal/transport/cli/command/*_commands/*.go`** — каждая команда отвечает за один тип операции
-- **`internal/usecase/exporter/*_builder.go`** — каждый builder отвечает за форматирование в одном формате
-- **`internal/usecase/exporter/*_strategy.go`** — каждая стратегия отвечает за один способ фильтрации данных
+**Реализован в:**
 
-**Пример:**
-```go
-// internal/usecase/exporter/csv_builder.go
-type CSVBuilder struct {
-    rows   [][]string
-    header []string
-}
-// Отвечает только за построение CSV формата
-```
+1. **Сервисы** (`internal/usecase/service/`)
+   - `BankAccountService` - отвечает только за бизнес-логику работы со счетами
+   - `CategoryService` - отвечает только за бизнес-логику работы с категориями
+   - `OperationService` - отвечает только за бизнес-логику работы с операциями
 
-### 2. Open/Closed Principle (OCP)
+2. **Репозитории** (`internal/infrastructure/repository/`)
+   - `BankAccountRepo` - отвечает только за работу с БД для счетов
+   - `CategoryRepo` - отвечает только за работу с БД для категорий
+   - `OperationRepo` - отвечает только за работу с БД для операций
 
-**Классы открыты для расширения, но закрыты для модификации.**
+3. **Команды** (`internal/transport/cli/command/`)
+   - Каждая команда отвечает за выполнение одной конкретной операции
+   - Например: `CreateBankAccountCommand` - только создание счета
 
-**Реализация:**
-- **`internal/usecase/exporter/builder.go`** — интерфейс `Builder` позволяет добавлять новые форматы (XML, Excel) без изменения существующего кода
-- **`internal/usecase/exporter/strategy.go`** — интерфейс `ExportStrategy` позволяет добавлять новые стратегии фильтрации без изменения фасадов
-- **`internal/transport/cli/menu/menu.go`** — система меню расширяется добавлением новых команд без изменения базовой логики
+4. **Импортеры** (`internal/usecase/importer/`)
+   - Каждый импортер отвечает за работу с одним форматом файла
+   - `CSVBankAccountImporter`, `JSONBankAccountImporter`, `YamlBankAccountImporter`
 
-**Пример:**
-```go
-// Можно добавить новый формат без изменения существующих
-func NewBuilder(format string) (Builder, error) {
-    switch format {
-    case ".csv":
-        return NewCSVBuilder(), nil
-    case ".json":
-        return NewJSONBuilder(), nil
-    case ".yaml":
-        return NewYAMLBuilder(), nil
-    // Легко добавить новый формат здесь
-    }
-}
-```
+#### Open/Closed Principle (OCP) - Принцип открытости/закрытости
 
-### 3. Liskov Substitution Principle (LSP)
+**Реализован в:**
 
-**Объекты должны быть заменяемы экземплярами их подтипов без изменения корректности программы.**
+1. **Импортеры** (`internal/usecase/importer/`)
+   - Интерфейс `BankAccountImporter` позволяет добавлять новые форматы импорта без изменения существующего кода
+   - Новый формат импорта реализуется через добавление нового класса, реализующего интерфейс
 
-**Реализация:**
-- **`internal/usecase/service/*_service.go`** — все сервисы реализуют интерфейсы репозиториев, определенные в сервисах
-- **`internal/infrastructure/proxy/*_proxy.go`** — прокси полностью заменяют репозитории, сохраняя тот же интерфейс
-- **`internal/usecase/exporter/*_builder.go`** — все builders взаимозаменяемы через интерфейс `Builder`
+2. **Команды** (`internal/transport/cli/command/`)
+   - Интерфейс `Command` позволяет добавлять новые команды без изменения структуры меню
+   - Новые команды добавляются через реализацию интерфейса `Command`
 
-**Пример:**
-```go
-// internal/usecase/service/bank_account_service.go
-type BankAccountRepo interface {
-    CreateBankAccount(ctx context.Context, account *model.BankAccount) error
-    // ...
-}
+3. **Декораторы** (`internal/transport/cli/command/decorator/`)
+   - `LoggingDecorator` расширяет функциональность команд без изменения их кода
+   - Можно добавить новые декораторы (например, для метрик, транзакций)
 
-// internal/infrastructure/proxy/bank_account_proxy.go
-// Proxy реализует тот же интерфейс и может заменить репозиторий
-```
+#### Liskov Substitution Principle (LSP) - Принцип подстановки Барбары Лисков
 
-### 4. Interface Segregation Principle (ISP)
+**Реализован в:**
 
-**Клиенты не должны зависеть от интерфейсов, которые они не используют.**
+1. **Импортеры**
+   - Все реализации `BankAccountImporter` (CSV, JSON, YAML) взаимозаменяемы
+   - Используются через общий интерфейс в `BankAccountFacade.ImportBankAccountsFromFile()`
 
-**Реализация:**
-- **`internal/usecase/exporter/strategy.go`** — интерфейс `ExportStrategy` содержит только необходимые методы (`Collect`, `GetHeaders`)
-- **`internal/transport/cli/menu/menu.go`** — интерфейс `Command` содержит только `Execute` и `Title`
-- Разделение интерфейсов репозиториев по типам сущностей (BankAccountRepo, CategoryRepo, OperationRepo)
+2. **Репозитории**
+   - `BankAccountProxy` может заменить `BankAccountRepo` благодаря одинаковому интерфейсу
+   - Определено в `internal/usecase/service/bank_account_service.go` как `BankAccountRepo interface`
 
-**Пример:**
-```go
-// Минимальный интерфейс для стратегии
-type ExportStrategy interface {
-    Collect(ctx context.Context, params ExportParams) ([]map[string]string, error)
-    GetHeaders() []string
-}
-```
+#### Interface Segregation Principle (ISP) - Принцип разделения интерфейсов
 
-### 5. Dependency Inversion Principle (DIP)
+**Реализован в:**
 
-**Зависимости должны быть направлены на абстракции, а не на конкретные реализации.**
+1. **Интерфейсы репозиториев**
+   - Каждый сервис определяет только необходимый ему интерфейс репозитория
+   - `BankAccountService` использует `BankAccountRepo interface` с минимальным набором методов
 
-**Реализация:**
-- **`internal/usecase/service/*_service.go`** — сервисы зависят от интерфейсов репозиториев, а не от конкретных реализаций
-- **`internal/app/di_container.go`** — DI-контейнер инвертирует зависимости, создавая конкретные реализации и передавая их через интерфейсы
-- **`internal/usecase/facade/*_facade.go`** — фасады зависят от интерфейсов сервисов
+2. **Интерфейс Command**
+   - Минимальный интерфейс: `Execute()` и `Title()`
+   - Команды не обязаны реализовывать ненужные методы
 
-**Пример:**
-```go
-// internal/usecase/service/bank_account_service.go
-type BankAccountService struct {
-    repo   BankAccountRepo  // Зависимость от интерфейса, а не от конкретного типа
-    fabric *model.DomainFabric
-}
-```
+#### Dependency Inversion Principle (DIP) - Принцип инверсии зависимостей
 
----
+**Реализован в:**
 
-## Принципы GRASP
+1. **Сервисы зависят от абстракций**
+   - `BankAccountService` зависит от интерфейса `BankAccountRepo`, а не от конкретной реализации
+   - Внедрение зависимостей происходит через конструкторы
 
-### 1. High Cohesion (Высокая связность)
+2. **Фасады зависят от сервисов**
+   - `BankAccountFacade` зависит от `BankAccountService`
+   - Команды зависят от фасадов, а не от сервисов напрямую
 
-**Элементы внутри модуля должны быть тесно связаны и работать вместе для достижения одной цели.**
+3. **DI Container** (`internal/app/di_container.go`)
+   - Централизованное управление зависимостями
+   - Все зависимости создаются в одном месте и передаются через конструкторы
 
-**Реализация:**
-- **`internal/usecase/exporter/`** — все классы в пакете exporter работают вместе для экспорта данных
-- **`internal/transport/cli/command/bank_account_commands/`** — все команды для банковских счетов сгруппированы вместе
-- **`internal/infrastructure/repository/`** — все репозитории сгруппированы по функциональности работы с БД
+### 3.2. Принципы GRASP
 
-**Пример:**
-```go
-// internal/usecase/exporter/
-// Все файлы работают вместе для экспорта:
-// - builder.go - интерфейс Builder
-// - csv_builder.go, json_builder.go, yaml_builder.go - реализации
-// - strategy.go - интерфейс Strategy
-// - full_export_strategy.go, by_account_strategy.go и т.д. - реализации
-```
+#### Information Expert (Информационный эксперт)
 
-### 2. Low Coupling (Низкая связанность)
+**Реализован в:**
 
-**Модули должны быть слабо связаны друг с другом, изменения в одном модуле не должны влиять на другие.**
+1. **Доменные модели** (`internal/domain/model/`)
+   - `BankAccount`, `Category`, `Operation` содержат логику работы со своими данными
+   - Геттеры и сеттеры инкапсулируют доступ к полям
 
-**Реализация:**
-- **`internal/usecase/service/`** — сервисы не знают о деталях реализации репозиториев (работают через интерфейсы)
-- **`internal/transport/cli/command/`** — команды не знают о деталях работы сервисов (работают через фасады)
-- **`internal/usecase/facade/`** — фасады изолируют транспортный слой от деталей бизнес-логики
+2. **DomainFabric** (`internal/domain/model/fabric.go`)
+   - Содержит знания о том, как правильно создавать и валидировать доменные объекты
+   - Знает все правила валидации для каждой сущности
 
-**Пример:**
-```go
-// Команда не знает о деталях экспорта, работает через фасад
-type ExportBankAccountCommand struct {
-    f *facade.BankAccountFacade  // Зависимость от абстракции
-}
-```
+#### Creator (Создатель)
 
-### 3. Information Expert (Информационный эксперт)
+**Реализован в:**
 
-**Ответственность должна быть назначена классу, который имеет информацию, необходимую для выполнения задачи.**
+1. **DomainFabric**
+   - Создает доменные объекты с валидацией
+   - Имеет все необходимые данные для создания объектов
 
-**Реализация:**
-- **`internal/infrastructure/repository/*_repo.go`** — репозитории знают, как работать с БД
-- **`internal/usecase/exporter/*_strategy.go`** — стратегии знают, как фильтровать данные для экспорта
-- **`internal/domain/model/fabric.go`** — фабрика знает, как создавать валидные доменные объекты
+2. **Сервисы**
+   - `BankAccountService` создает объекты `BankAccount` через `DomainFabric`
+   - Использует фабрику для создания объектов перед сохранением в БД
 
-**Пример:**
-```go
-// internal/usecase/exporter/by_account_strategy.go
-// Стратегия знает, как фильтровать операции по account ID
-func (s *ByAccountStrategy) Collect(ctx context.Context, params ExportParams) ([]map[string]string, error) {
-    // Логика фильтрации находится здесь, где есть доступ к данным
-}
-```
+#### Controller (Контроллер)
 
-### 4. Creator (Создатель)
+**Реализован в:**
 
-**Класс, который создает экземпляры другого класса, должен иметь для этого веские причины.**
+1. **Фасады** (`internal/usecase/facade/`)
+   - `BankAccountFacade`, `CategoryFacade`, `OperationFacade` координируют работу между слоями
+   - Упрощают интерфейс для команд, скрывая сложность взаимодействия с сервисами и импортерами
 
-**Реализация:**
-- **`internal/domain/model/fabric.go`** — `DomainFabric` создает доменные объекты с валидацией
-- **`internal/app/di_container.go`** — DI-контейнер создает все зависимости приложения
-- **`internal/usecase/exporter/builder.go`** — `NewBuilder` создает конкретные реализации builders
+2. **Меню** (`internal/transport/cli/menu/`)
+   - `Menu` контролирует поток выполнения команд
+   - Обрабатывает пользовательский ввод и делегирует выполнение командам
 
-**Пример:**
-```go
-// internal/domain/model/fabric.go
-// Фабрика создает доменные объекты, т.к. знает правила валидации
-func (f *DomainFabric) BuildBankAccount(id int64, name string, balance float64) (*BankAccount, error) {
-    // Валидация и создание
-    return NewBankAccount(id, name, balance), nil
-}
-```
+#### Low Coupling (Слабая связанность)
 
-### 5. Controller (Контроллер)
+**Реализован в:**
 
-**Класс, который координирует работу системы, но не выполняет бизнес-логику.**
+1. **Интерфейсы между слоями**
+   - Сервисы зависят от интерфейсов репозиториев, а не от конкретных реализаций
+   - Команды зависят от фасадов, а не от сервисов напрямую
 
-**Реализация:**
-- **`internal/transport/cli/menu/menu.go`** — `Menu` координирует выполнение команд
-- **`internal/app/di_container.go`** — `Container` координирует инициализацию всех компонентов
-- **`internal/usecase/facade/*_facade.go`** — фасады координируют работу сервисов
+2. **Разделение ответственности**
+   - Каждый модуль имеет четко определенную ответственность
+   - Изменения в одном модуле не влияют на другие
 
-**Пример:**
-```go
-// internal/transport/cli/menu/menu.go
-// Menu координирует выполнение команд, но не содержит бизнес-логику
-func (m *Menu) Run(ctx context.Context) {
-    // Координация выполнения команд
-}
-```
+#### High Cohesion (Высокая связность)
+
+**Реализован в:**
+
+1. **Модули по функциональности**
+   - Все команды для банковских счетов в `bank_account_commands/`
+   - Все импортеры для счетов в `bank_account_importer/`
+   - Все репозитории в `repository/`
+
+2. **Сервисы**
+   - Каждый сервис содержит только методы, связанные с одной сущностью
+   - Все методы сервиса работают с одной доменной моделью
+
+#### Polymorphism (Полиморфизм)
+
+**Реализован в:**
+
+1. **Импортеры**
+   - Различные реализации `BankAccountImporter` используются полиморфно
+   - Выбор реализации происходит в runtime на основе формата файла
+
+2. **Команды**
+   - Все команды реализуют интерфейс `Command`
+   - Меню работает с командами полиморфно через интерфейс
+
+#### Protected Variations (Защита от вариаций)
+
+**Реализован в:**
+
+1. **Proxy паттерн**
+   - `BankAccountProxy` защищает от изменений в репозитории
+   - Добавляет кэширование без изменения клиентского кода
+
+2. **Decorator паттерн**
+   - `LoggingDecorator` добавляет логирование без изменения команд
+   - Защищает команды от необходимости знать о логировании
 
 ---
 
-## Паттерны GoF
+## 4. Паттерны GoF (Gang of Four)
 
-### 1. Builder (Строитель)
+### 4.1. Creational Patterns (Порождающие паттерны)
 
-**Назначение:** Пошаговое построение сложных объектов.
+#### Factory Method (Фабричный метод)
+
+**Реализация:** `internal/domain/model/fabric.go`
+
+**Описание:**
+`DomainFabric` использует фабричный метод для создания доменных объектов с валидацией. Каждый метод (`BuildBankAccount`, `BuildCategory`, `BuildOperation`) инкапсулирует логику создания и валидации объекта.
+
+**Важность:**
+- Централизует логику создания объектов
+- Обеспечивает валидацию на этапе создания
+- Упрощает создание объектов в сервисах
+- Гарантирует корректность создаваемых объектов
+
+**Использование:**
+```go
+// В BankAccountService
+account, err := s.fabric.BuildBankAccount(0, req.Name, req.Balance)
+```
+
+#### Builder (Строитель)
 
 **Реализация:** `internal/usecase/exporter/`
 
-**Важность:** Позволяет создавать отчеты в различных форматах (CSV, JSON, YAML) с единым интерфейсом. Упрощает добавление новых форматов без изменения существующего кода.
+**Описание:**
+Паттерн Builder реализован в экспорте данных в файлы различных форматов (CSV, JSON, YAML). Builder позволяет пошагово конструировать экспортируемые данные, обеспечивая гибкость в создании файлов с различной структурой и форматом.
 
-**Классы:**
-- `internal/usecase/exporter/builder.go` — интерфейс `Builder`
-- `internal/usecase/exporter/csv_builder.go` — `CSVBuilder`
-- `internal/usecase/exporter/json_builder.go` — `JSONBuilder`
-- `internal/usecase/exporter/yaml_builder.go` — `YAMLBuilder`
+**Важность:**
+- Позволяет создавать сложные объекты пошагово
+- Изолирует код конструирования от бизнес-логики
+- Обеспечивает гибкость в создании файлов различных форматов
+- Упрощает добавление новых форматов экспорта
 
-**Пример использования:**
+**Использование:**
 ```go
-builder, _ := exporter.NewBuilder(".csv")
-builder.Begin(ctx, "Отчет")
-builder.AddHeader(ctx, "id", "name", "balance")
-builder.AddRow(ctx, "1", "Account1", "1000.00")
-report, _ := builder.End(ctx)
+// В экспортерах
+builder := NewExportBuilder()
+builder.SetData(data)
+builder.SetFormat(format)
+file := builder.Build()
 ```
 
-### 2. Strategy (Стратегия)
+### 4.2. Structural Patterns (Структурные паттерны)
 
-**Назначение:** Определяет семейство алгоритмов, инкапсулирует каждый из них и делает их взаимозаменяемыми.
+#### Facade (Фасад)
 
-**Реализация:** `internal/usecase/exporter/`
+**Реализация:** `internal/usecase/facade/`
 
-**Важность:** Позволяет выбирать различные стратегии фильтрации данных при экспорте (полный экспорт, по счету, по категории, по датам) без изменения кода фасадов и команд.
+**Модули:**
+- `bank_account_facade.go`
+- `category_facade.go`
+- `operation_facade.go`
 
-**Классы:**
-- `internal/usecase/exporter/strategy.go` — интерфейс `ExportStrategy`
-- `internal/usecase/exporter/full_export_strategy.go` — `FullExportStrategy`
-- `internal/usecase/exporter/by_account_strategy.go` — `ByAccountStrategy`
-- `internal/usecase/exporter/by_category_strategy.go` — `ByCategoryStrategy`
-- `internal/usecase/exporter/date_range_strategy.go` — `DateRangeStrategy`
+**Описание:**
+Фасады упрощают взаимодействие с системой, предоставляя единый упрощенный интерфейс для работы с сервисами и импортерами. Скрывают сложность выбора правильного импортера и координации работы между компонентами.
 
-**Пример использования:**
+**Важность:**
+- Упрощает интерфейс для клиентов (команд)
+- Инкапсулирует логику выбора импортера
+- Уменьшает связанность между слоями
+- Облегчает тестирование
+
+**Использование:**
 ```go
-strategy, _ := exporter.NewStrategy("by_account", "operation")
-strategy.SetService(operationService)
-data, _ := strategy.Collect(ctx, params)
+// В командах
+err := c.f.CreateBankAccount(ctx, req)
+err := c.f.ImportBankAccountsFromFile(ctx, path, format)
 ```
 
-### 3. Factory (Фабрика)
-
-**Назначение:** Создание объектов без указания конкретных классов.
-
-**Реализация:** `internal/domain/model/fabric.go`, `internal/usecase/exporter/builder.go`, `internal/usecase/exporter/strategy.go`
-
-**Важность:** Централизует создание объектов с валидацией и обеспечивает единообразие создания экземпляров.
-
-**Классы:**
-- `internal/domain/model/fabric.go` — `DomainFabric` (создание доменных объектов)
-- `internal/usecase/exporter/builder.go` — `NewBuilder` (создание builders)
-- `internal/usecase/exporter/strategy.go` — `NewStrategy` (создание стратегий)
-
-**Пример:**
-```go
-// internal/domain/model/fabric.go
-func (f *DomainFabric) BuildBankAccount(id int64, name string, balance float64) (*BankAccount, error) {
-    // Валидация и создание
-}
-```
-
-### 4. Repository (Репозиторий)
-
-**Назначение:** Абстракция доступа к данным, скрывает детали работы с БД.
-
-**Реализация:** `internal/infrastructure/repository/`
-
-**Важность:** Изолирует бизнес-логику от деталей персистентности, упрощает тестирование и позволяет менять источник данных.
-
-**Классы:**
-- `internal/infrastructure/repository/bank_account_repo.go` — `BankAccountRepo`
-- `internal/infrastructure/repository/category_repo.go` — `CategoryRepo`
-- `internal/infrastructure/repository/operation_repo.go` — `OperationRepo`
-
-**Интерфейсы определены в:**
-- `internal/usecase/service/bank_account_service.go` — `BankAccountRepo interface`
-- `internal/usecase/service/category_service.go` — `CategoryRepo interface`
-- `internal/usecase/service/operation_service.go` — `OperationRepo interface`
-
-### 5. Proxy (Прокси)
-
-**Назначение:** Предоставляет суррогат или заместитель для другого объекта для контроля доступа к нему.
+#### Proxy (Прокси)
 
 **Реализация:** `internal/infrastructure/proxy/`
 
-**Важность:** Добавляет кэширование для оптимизации доступа к данным без изменения интерфейса репозитория.
+**Модули:**
+- `bank_account_proxy.go`
+- `category_proxy.go`
+- `operation_proxy.go`
 
-**Классы:**
-- `internal/infrastructure/proxy/bank_account_proxy.go` — `BankAccountProxy`
-- `internal/infrastructure/proxy/category_proxy.go` — `CategoryProxy`
-- `internal/infrastructure/proxy/operation_proxy.go` — `OperationProxy`
+**Описание:**
+Прокси добавляет кэширование к репозиториям. При первом обращении данные загружаются из БД и сохраняются в кэше. Последующие обращения используют кэш, что повышает производительность.
 
-**Пример:**
+**Важность:**
+- Улучшает производительность за счет кэширования
+- Прозрачно для клиентского кода (сервисов)
+- Легко добавляется/удаляется без изменения других компонентов
+- Снижает нагрузку на БД
+
+**Использование:**
 ```go
-// Прокси добавляет кэширование поверх репозитория
-func (p *BankAccountProxy) GetBankAccount(ctx context.Context, accountId int64) (*model.BankAccount, error) {
-    if account, ok := p.cache[accountId]; ok {
-        return account, nil  // Возврат из кэша
-    }
-    // Иначе запрос к репозиторию
+// В DI контейнере
+bankAccountProxy := proxy.NewBankAccountProxy(bankAccountRepo, lg)
+bankAccountService := service.NewBankAccountService(bankAccountProxy)
+```
+
+#### Decorator (Декоратор)
+
+**Реализация:** `internal/transport/cli/command/decorator/command_decorator.go`
+
+**Описание:**
+`LoggingDecorator` оборачивает команды для добавления логирования времени выполнения. Декоратор не изменяет интерфейс команды, а только добавляет дополнительное поведение.
+
+**Важность:**
+- Добавляет функциональность без изменения существующего кода
+- Можно комбинировать несколько декораторов
+- Соответствует принципу Open/Closed
+- Легко добавлять новые декораторы (метрики, транзакции)
+
+**Использование:**
+```go
+// В DI контейнере
+bankAccountCommands := []menu.Command{
+    decorator.WithLogging(createBankAccountCommand, lg),
+    decorator.WithLogging(getBankAccountCommand, lg),
+    // ...
 }
 ```
 
-### 6. Template Method (Шаблонный метод)
+### 4.3. Behavioral Patterns (Поведенческие паттерны)
 
-**Назначение:** Определяет скелет алгоритма, делегируя некоторые шаги подклассам.
-
-**Реализация:** `internal/usecase/importer/*/`
-
-**Важность:** Унифицирует процесс импорта (Load → Validate → Save) для всех форматов, позволяя изменять только детали парсинга.
-
-**Классы:**
-- `internal/usecase/importer/bank_account_importer/bank_account_importer.go` — `BankAccountTemplate`
-- `internal/usecase/importer/category_importer/category_importer.go` — `CategoryTemplate`
-- `internal/usecase/importer/operation_importer/operation_importer.go` — `OperationTemplate`
-
-**Пример:**
-```go
-// Шаблонный метод определяет алгоритм
-func (t *BankAccountTemplate) Run(ctx context.Context, path string) error {
-    data, err := t.Impl.Load(path)      // Шаг 1
-    err = t.Impl.Validate(data)        // Шаг 2
-    err = t.Impl.Save(ctx, data)       // Шаг 3
-    return nil
-}
-```
-
-### 7. Command (Команда)
-
-**Назначение:** Инкапсулирует запрос как объект, позволяя параметризовать клиентов с различными запросами.
+#### Command (Команда)
 
 **Реализация:** `internal/transport/cli/command/`
 
-**Важность:** Позволяет унифицировать выполнение операций, добавлять декораторы (логирование, таймауты) и поддерживать отмену операций.
+**Модули:**
+- `bank_account_commands/` - команды для работы со счетами
+- `category_commands/` - команды для работы с категориями
+- `operation_commands/` - команды для работы с операциями
 
-**Классы:**
-- `internal/transport/cli/menu/menu.go` — интерфейс `Command`
-- `internal/transport/cli/command/bank_account_commands/*.go` — команды для счетов
-- `internal/transport/cli/command/category_commands/*.go` — команды для категорий
-- `internal/transport/cli/command/operation_commands/*.go` — команды для операций
+**Описание:**
+Каждая операция инкапсулирована в отдельную команду, реализующую интерфейс `Command` с методами `Execute()` и `Title()`. Команды можно легко добавлять, удалять и комбинировать.
 
-**Пример:**
+**Важность:**
+- Инкапсулирует запросы как объекты
+- Позволяет параметризовать клиентов различными запросами
+- Упрощает добавление новых операций
+- Поддерживает отмену операций (можно расширить)
+- Упрощает логирование и аудит
+
+**Использование:**
 ```go
+// Интерфейс Command
 type Command interface {
     Execute(ctx context.Context) error
     Title() string
 }
+
+// Пример команды
+type CreateBankAccountCommand struct {
+    f *facade.BankAccountFacade
+    // ...
+}
 ```
 
-### 8. Decorator (Декоратор)
+#### Template Method (Шаблонный метод)
 
-**Назначение:** Динамически добавляет объектам новую функциональность.
+**Реализация:** `internal/usecase/importer/`
 
-**Реализация:** `internal/transport/cli/command/decorator/`
+**Модули:**
+- `bank_account_importer/bank_account_importer.go`
+- `category_importer/category_importer.go`
+- `operation_importer/operation_importer.go`
 
-**Важность:** Позволяет добавлять кросс-срезочные аспекты (логирование, измерение времени, таймауты) к командам без изменения их кода.
+**Описание:**
+`BankAccountTemplate` определяет алгоритм импорта (Load → Validate → Save), оставляя детали реализации конкретным импортерам. Каждый импортер (CSV, JSON, YAML) реализует эти шаги по-своему.
 
-**Классы:**
-- `internal/transport/cli/command/decorator/command_decorator.go` — `LoggingDecorator`
+**Важность:**
+- Определяет скелет алгоритма
+- Переиспользует общую логику импорта
+- Упрощает добавление новых форматов
+- Обеспечивает единообразие процесса импорта
 
-**Пример:**
+**Использование:**
 ```go
-// Декоратор добавляет логирование к команде
-decoratedCommand := decorator.WithLogging(originalCommand, logger)
+// Шаблон
+type BankAccountTemplate struct {
+    Impl BankAccountImporter
+}
+
+func (t *BankAccountTemplate) Run(ctx context.Context, path string) error {
+    data, err := t.Impl.Load(path)      // Шаг 1
+    err = t.Impl.Validate(data)         // Шаг 2
+    err = t.Impl.Save(ctx, data)        // Шаг 3
+}
+
+// Конкретная реализация
+type CSVBankAccountImporter struct {
+    // реализует Load, Validate, Save
+}
 ```
 
-### 9. Facade (Фасад)
+#### Strategy (Стратегия)
 
-**Назначение:** Предоставляет унифицированный интерфейс к набору интерфейсов в подсистеме.
+**Реализация:** `internal/usecase/exporter/`
 
-**Реализация:** `internal/usecase/facade/`
+**Модули:**
+- Различные экспортеры: `csv_*_exporter.go`, `json_*_exporter.go`, `yaml_*_exporter.go`
 
-**Важность:** Упрощает работу транспортного слоя, скрывая сложность взаимодействия с несколькими сервисами и координируя операции экспорта/импорта.
+**Описание:**
+Интерфейс `BankAccountExporter` определяет семейство алгоритмов экспорта. Каждый экспортер (CSV, JSON, YAML) представляет отдельную стратегию сохранения данных. Выбор стратегии происходит в runtime на основе расширения файла.
 
-**Классы:**
-- `internal/usecase/facade/bank_account_facade.go` — `BankAccountFacade`
-- `internal/usecase/facade/category_facade.go` — `CategoryFacade`
-- `internal/usecase/facade/operation_facade.go` — `OperationFacade`
+**Важность:**
+- Позволяет выбирать алгоритм во время выполнения
+- Изолирует алгоритмы друг от друга
+- Упрощает добавление новых форматов
+- Соответствует принципу Open/Closed
 
-**Пример:**
+**Использование:**
 ```go
-// Фасад упрощает экспорт, координируя стратегию и builder
-func (f *BankAccountFacade) Export(ctx context.Context, params exporter.ExportParams) (*exporter.Report, error) {
-    strategy, _ := exporter.NewStrategy(params.Strategy, "bank_account")
-    data, _ := strategy.Collect(ctx, params)
-    builder, _ := exporter.NewBuilder(params.Format)
-    // ... построение отчета
+// В BankAccountFacade
+var exporter bank_account_exporter.BankAccountExporter
+switch format {
+case ".csv":
+    exporter = bank_account_exporter.NewCSVBankAccountExporter(f.svc)
+case ".json":
+    exporter = bank_account_exporter.NewJSONBankAccountExporter(f.svc)
+case ".yaml":
+    exporter = bank_account_exporter.NewYamlBankAccountExporter(f.svc)
 }
 ```
 
 ---
 
-## Инструкция по запуску
+## 5. Инструкция по запуску приложения
 
 ### Требования
 
-- Go 1.25.1 или выше
-- PostgreSQL 12+
-- Установленный `golang-migrate` (опционально, миграции запускаются автоматически)
+- **Go** версии 1.25.1 или выше
+- **PostgreSQL** версии 12 или выше
+- **Git** (для клонирования репозитория)
 
 ### Шаг 1: Клонирование репозитория
 
@@ -501,30 +540,44 @@ git clone <repository-url>
 cd Financial-Analytics-Service
 ```
 
-### Шаг 2: Настройка базы данных
-
-1. Создайте базу данных PostgreSQL:
-```sql
-CREATE DATABASE financial_analytics;
-```
-
-2. Создайте файл `.env` в корне проекта:
-```env
-APP_ENV=local
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=your_password
-DB_NAME=financial_analytics
-```
-
-### Шаг 3: Установка зависимостей
+### Шаг 2: Установка зависимостей
 
 ```bash
 go mod download
 ```
 
-### Шаг 4: Запуск приложения
+### Шаг 3: Настройка базы данных
+
+1. Создайте базу данных PostgreSQL:
+
+```sql
+CREATE DATABASE financial_analytics;
+```
+
+2. Создайте файл `.env` в корне проекта:
+
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_NAME=financial_analytics
+
+# Application Configuration
+APP_ENV=local
+```
+
+Замените `your_password` на ваш пароль PostgreSQL.
+
+### Шаг 4: Запуск миграций
+
+Миграции запускаются автоматически при старте приложения. Убедитесь, что:
+- База данных создана
+- Файл `.env` настроен корректно
+- PostgreSQL запущен и доступен
+
+### Шаг 5: Запуск приложения
 
 ```bash
 go run cmd/main.go
@@ -537,101 +590,76 @@ go build -o financial-analytics cmd/main.go
 ./financial-analytics
 ```
 
-### Шаг 5: Использование
+На Windows:
 
-После запуска откроется интерактивное меню:
+```bash
+go build -o financial-analytics.exe cmd/main.go
+financial-analytics.exe
+```
+
+### Шаг 6: Использование приложения
+
+После запуска вы увидите главное меню:
 
 ```
 === Главное меню ===
-1) Управлять банковскими счетами
-2) Управлять категориями
-3) Управлять операциями
+1) Банковские счета
+2) Категории
+3) Операции
 4) Выход
 ```
 
-В каждом подменю доступны операции:
-- Создание, чтение, обновление, удаление
-- Получение всех записей
-- Импорт из файла (CSV/JSON/YAML)
-- **Экспорт в файл (CSV/JSON/YAML)** — новый функционал
+Выберите нужный пункт меню и следуйте инструкциям.
 
-### Примеры использования экспорта
+### Импорт данных
 
-#### Экспорт банковских счетов:
-1. Выберите "Управлять банковскими счетами"
-2. Выберите "Экспорт банковских счетов в файл"
-3. Введите путь к файлу (например: `/path/to/accounts.csv`)
-4. Формат определяется автоматически по расширению файла
+Для импорта данных подготовьте файлы в одном из поддерживаемых форматов (CSV, JSON, YAML) и поместите их в папку `test_import_files/` или укажите полный путь к файлу при импорте.
 
-#### Экспорт операций с фильтрацией:
-1. Выберите "Управлять операциями"
-2. Выберите "Экспорт операций в файл"
-3. Выберите стратегию:
-   - `full` — все операции
-   - `by_account` — по ID счета (потребуется ввести ID)
-   - `by_category` — по ID категории (потребуется ввести ID)
-   - `date_range` — за период (потребуется ввести даты)
-4. Введите путь к файлу
+### Экспорт данных
 
-### Форматы экспорта
+Приложение поддерживает экспорт данных в файлы форматов CSV, JSON, YAML. Выберите соответствующую опцию в меню для экспорта данных и укажите желаемый формат файла.
 
-Экспорт поддерживает три формата:
-- **CSV** — табличный формат с заголовками
-- **JSON** — массив объектов с отступами
-- **YAML** — структурированный формат
-
-Названия полей в экспортируемых файлах соответствуют полям из `internal/domain/request`:
-- Банковские счета: `id`, `name`, `balance`
-- Категории: `id`, `kind`, `name`
-- Операции: `id`, `kind`, `bank_account_id`, `amount`, `date`, `description`, `category_id`
-
-### Структура проекта
-
+**Пример структуры CSV файла для банковских счетов:**
+```csv
+name,balance
+"Основной счет",10000.00
+"Сберегательный счет",50000.00
 ```
-.
-├── cmd/
-│   └── main.go                    # Точка входа приложения
-├── internal/
-│   ├── app/
-│   │   ├── app.go                 # Основной класс приложения
-│   │   └── di_container.go       # DI-контейнер
-│   ├── config/
-│   │   └── config.go              # Конфигурация
-│   ├── domain/
-│   │   ├── model/                 # Доменные модели
-│   │   ├── request/               # DTO для запросов
-│   │   └── response/              # DTO для ответов
-│   ├── infrastructure/
-│   │   ├── repository/            # Репозитории (Repository pattern)
-│   │   ├── proxy/                 # Прокси с кэшированием (Proxy pattern)
-│   │   └── db.go                  # Подключение к БД
-│   ├── transport/
-│   │   └── cli/
-│   │       ├── command/           # Команды (Command pattern)
-│   │       │   ├── decorator/     # Декораторы (Decorator pattern)
-│   │       │   └── *_commands/    # Команды по типам сущностей
-│   │       └── menu/              # Система меню
-│   └── usecase/
-│       ├── service/                # Бизнес-логика
-│       ├── facade/                 # Фасады (Facade pattern)
-│       ├── importer/               # Импортеры (Template Method)
-│       └── exporter/               # Экспортеры (Builder + Strategy)
-├── migrations/                     # SQL миграции
-├── pkg/
-│   ├── logger/                     # Логирование
-│   └── utils/                      # Утилиты
-└── go.mod                          # Зависимости
+
+**Пример структуры JSON файла:**
+```json
+[
+  {
+    "name": "Основной счет",
+    "balance": 10000.00
+  },
+  {
+    "name": "Сберегательный счет",
+    "balance": 50000.00
+  }
+]
 ```
 
 ### Остановка приложения
 
-Для корректного завершения нажмите `Ctrl+C` или выберите "Выход" в меню. Приложение выполнит graceful shutdown и закроет соединения с БД.
+Для корректной остановки приложения нажмите `Ctrl+C`. Приложение выполнит graceful shutdown и корректно закроет все соединения.
 
----
+### Структура проекта
 
-## Заключение
-
-Проект демонстрирует применение современных принципов проектирования и паттернов GoF для создания масштабируемого и поддерживаемого приложения. Все компоненты слабо связаны, что позволяет легко расширять функциональность и тестировать отдельные части системы.
-
-
-
+```
+Financial-Analytics-Service/
+├── cmd/
+│   └── main.go                 # Точка входа
+├── internal/
+│   ├── app/                    # Инициализация приложения
+│   ├── config/                 # Конфигурация
+│   ├── domain/                 # Доменный слой
+│   ├── infrastructure/         # Инфраструктурный слой
+│   ├── transport/              # Транспортный слой (CLI)
+│   └── usecase/                # Слой бизнес-логики
+├── migrations/                 # Миграции БД
+├── pkg/                        # Вспомогательные пакеты
+├── test_import_files/          # Тестовые файлы для импорта
+├── go.mod                      # Зависимости
+└── README.md                   # Документация
+```
