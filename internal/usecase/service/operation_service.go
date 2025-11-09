@@ -61,6 +61,7 @@ func (s *OperationService) GetOperation(ctx context.Context, req *request.GetOpe
 		Kind:          op.Kind(),
 		BankAccountId: op.BankAccountId(),
 		Amount:        op.Amount(),
+		Date:          op.Date(),
 		Description:   op.Description(),
 		CategoryId:    op.CategoryId(),
 	}
@@ -111,6 +112,7 @@ func (s *OperationService) GetAllOperations(ctx context.Context) ([]*response.Op
 			Kind:          op.Kind(),
 			BankAccountId: op.BankAccountId(),
 			Amount:        op.Amount(),
+			Date:          op.Date(),
 			Description:   op.Description(),
 			CategoryId:    op.CategoryId(),
 		}

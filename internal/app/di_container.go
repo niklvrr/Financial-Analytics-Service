@@ -72,6 +72,7 @@ func New(ctx context.Context) (*Container, error) {
 	deleteBankAccountCommand := bank_account_commands.NewDeleteBankAccountCommand(bankAccountFacade)
 	getAllBankAccountsCommand := bank_account_commands.NewGetAllBankAccountsCommand(bankAccountFacade)
 	importBankAccountCommand := bank_account_commands.NewImportBankAccountCommand(bankAccountFacade)
+	exportBankAccountCommand := bank_account_commands.NewExportBankAccountCommand(bankAccountFacade)
 	bankAccountCommands := []menu.Command{
 		decorator.WithLogging(createBankAccountCommand, lg),
 		decorator.WithLogging(getBankAccountCommand, lg),
@@ -79,6 +80,7 @@ func New(ctx context.Context) (*Container, error) {
 		decorator.WithLogging(deleteBankAccountCommand, lg),
 		decorator.WithLogging(getAllBankAccountsCommand, lg),
 		decorator.WithLogging(importBankAccountCommand, lg),
+		decorator.WithLogging(exportBankAccountCommand, lg),
 	}
 
 	// инициализация команд категории
@@ -88,6 +90,7 @@ func New(ctx context.Context) (*Container, error) {
 	deleteCategoryCommand := category_commands.NewDeleteCategoryCommand(categoryFacade)
 	getAllCategoriesCommand := category_commands.NewGetAllCategoriesCommand(categoryFacade)
 	importCategoryCommand := category_commands.NewImportCategoryCommand(categoryFacade)
+	exportCategoryCommand := category_commands.NewExportCategoryCommand(categoryFacade)
 	categoryCommands := []menu.Command{
 		decorator.WithLogging(createCategoryCommand, lg),
 		decorator.WithLogging(getCategoryCommand, lg),
@@ -95,6 +98,7 @@ func New(ctx context.Context) (*Container, error) {
 		decorator.WithLogging(deleteCategoryCommand, lg),
 		decorator.WithLogging(getAllCategoriesCommand, lg),
 		decorator.WithLogging(importCategoryCommand, lg),
+		decorator.WithLogging(exportCategoryCommand, lg),
 	}
 
 	// инициализация команд операций
@@ -104,6 +108,7 @@ func New(ctx context.Context) (*Container, error) {
 	deleteOperationCommand := operation_commands.NewDeleteOperationCommand(operationFacade)
 	getAllOperationsCommand := operation_commands.NewGetAllOperationsCommand(operationFacade)
 	importOperationCommand := operation_commands.NewImportOperationCommand(operationFacade)
+	exportOperationCommand := operation_commands.NewExportOperationCommand(operationFacade)
 	operationCommands := []menu.Command{
 		decorator.WithLogging(createOperationCommand, lg),
 		decorator.WithLogging(getOperationCommand, lg),
@@ -111,6 +116,7 @@ func New(ctx context.Context) (*Container, error) {
 		decorator.WithLogging(deleteOperationCommand, lg),
 		decorator.WithLogging(getAllOperationsCommand, lg),
 		decorator.WithLogging(importOperationCommand, lg),
+		decorator.WithLogging(exportOperationCommand, lg),
 	}
 
 	// инициализация меню

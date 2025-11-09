@@ -90,6 +90,9 @@ func inputCommand(in *bufio.Reader, itemsCount int) (int, error) {
 	}
 
 	input = strings.TrimSpace(input)
+	if input == "" {
+		return 0, incorrectCommandError
+	}
 	num, err := strconv.Atoi(input)
 	if err != nil {
 		return 0, err
